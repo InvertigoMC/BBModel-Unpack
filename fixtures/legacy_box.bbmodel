@@ -1,0 +1,60 @@
+{
+	"meta": {
+		"format_version": "3.6",
+		"box_uv": true,
+		"bone_rig": true
+	},
+	"name": "legacy_box",
+	"geometry_name": "legacy_box",
+	"resolution": {
+		"width": 16,
+		"height": 16
+	},
+	"elements": [
+		{
+			"name": "old_cube",
+			"uuid": "legacy-cube-1",
+			"from": [
+				0,
+				0,
+				0
+			],
+			"to": [
+				4,
+				4,
+				4
+			],
+			"origin": [
+				0,
+				0,
+				0
+			],
+			"uv_offset": [
+				0,
+				0
+			],
+			"shade": false
+		}
+	],
+	"outliner": [
+		{
+			"name": "root_bone",
+			"origin": [
+				0,
+				0,
+				0
+			],
+			"rotation": [
+				0,
+				0,
+				0
+			],
+			"uuid": "legacy-group-1",
+			"export": true,
+			"children": [
+				"legacy-cube-1"
+			]
+		}
+	],
+	"textures": []
+}

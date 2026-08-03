@@ -1,0 +1,15 @@
+.vscode/**
+.vscode-test/**
+src/**
+out/test/**
+out/**/*.map
+fixtures/**
+scripts/**
+docs/**
+node_modules/**
+.gitignore
+.gitattributes
+eslint.config.mjs
+tsconfig.json
+media/icon.svg
+**/*.vsix

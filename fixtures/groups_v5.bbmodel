@@ -1,0 +1,150 @@
+{
+	"meta": {
+		"format_version": "5.0",
+		"model_format": "bedrock",
+		"box_uv": false
+	},
+	"name": "groups_v5",
+	"model_identifier": "groups_v5",
+	"resolution": {
+		"width": 16,
+		"height": 16
+	},
+	"elements": [
+		{
+			"name": "leaf_cube",
+			"type": "cube",
+			"uuid": "v5-cube-1",
+			"box_uv": false,
+			"from": [
+				-1,
+				0,
+				-1
+			],
+			"to": [
+				1,
+				2,
+				1
+			],
+			"origin": [
+				0,
+				0,
+				0
+			],
+			"faces": {
+				"north": {
+					"uv": [
+						0,
+						0,
+						2,
+						2
+					],
+					"texture": 0
+				},
+				"east": {
+					"uv": [
+						0,
+						0,
+						2,
+						2
+					],
+					"texture": 0
+				},
+				"south": {
+					"uv": [
+						0,
+						0,
+						2,
+						2
+					],
+					"texture": 0
+				},
+				"west": {
+					"uv": [
+						0,
+						0,
+						2,
+						2
+					],
+					"texture": 0
+				},
+				"up": {
+					"uv": [
+						0,
+						0,
+						2,
+						2
+					],
+					"texture": 0
+				},
+				"down": {
+					"uv": [
+						0,
+						0,
+						2,
+						2
+					],
+					"texture": 0
+				}
+			}
+		}
+	],
+	"groups": [
+		{
+			"uuid": "v5-root",
+			"name": "root",
+			"origin": [
+				0,
+				0,
+				0
+			],
+			"rotation": [
+				0,
+				0,
+				0
+			],
+			"export": true,
+			"isOpen": true
+		},
+		{
+			"uuid": "v5-child",
+			"name": "child",
+			"origin": [
+				0,
+				4,
+				0
+			],
+			"rotation": [
+				10,
+				0,
+				0
+			],
+			"export": true,
+			"isOpen": true
+		}
+	],
+	"outliner": [
+		{
+			"uuid": "v5-root",
+			"isOpen": true,
+			"children": [
+				{
+					"uuid": "v5-child",
+					"isOpen": true,
+					"children": [
+						"v5-cube-1"
+					]
+				}
+			]
+		}
+	],
+	"textures": [
+		{
+			"name": "tiny.png",
+			"id": "0",
+			"mode": "bitmap",
+			"uuid": "v5-tex",
+			"source": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAKElEQVR42mOoqLjzH4Q1NKLAmFQ+A8UGkKsRxqfcgNEwGA2D0TAAYwDrzDofKFDYLAAAAABJRU5ErkJggg=="
+		}
+	]
+}

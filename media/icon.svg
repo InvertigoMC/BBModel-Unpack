@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256">
+  <!--
+    BBModel Unpack icon — original artwork.
+    An amber isometric cube lifting out of an open slate crate.
+    Source of truth for media/icon.png (regenerate: node scripts/generate-icon.js).
+  -->
+  <rect width="256" height="256" rx="44" fill="#131A22"/>
+
+  <!-- crate: back walls + interior -->
+  <polygon points="50,158 128,119 128,161 50,200" fill="#2A3648"/>
+  <polygon points="128,119 206,158 206,200 128,161" fill="#232D3C"/>
+  <polygon points="128,119 206,158 128,197 50,158" fill="#0C1016"/>
+
+  <!-- cube lifted out -->
+  <polygon points="128,67 178,92 128,117 78,92" fill="#FFC94A"/>
+  <polygon points="78,92 128,117 128,167 78,142" fill="#E09F2D"/>
+  <polygon points="128,117 178,92 178,142 128,167" fill="#B97B1D"/>
+
+  <!-- crate: front walls + rim highlight -->
+  <polygon points="50,158 128,197 128,239 50,200" fill="#3D4E64"/>
+  <polygon points="128,197 206,158 206,200 128,239" fill="#334154"/>
+  <polygon points="50,158 128,197 128,202 50,163" fill="#556B88"/>
+  <polygon points="128,197 206,158 206,163 128,202" fill="#556B88"/>
+
+  <!-- mint motion dashes -->
+  <rect x="40" y="84" width="22" height="8" fill="#7FD1B9"/>
+  <rect x="52" y="62" width="16" height="8" fill="#7FD1B9"/>
+  <rect x="194" y="84" width="22" height="8" fill="#7FD1B9"/>
+  <rect x="188" y="62" width="16" height="8" fill="#7FD1B9"/>
+</svg>

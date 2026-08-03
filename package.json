@@ -1,0 +1,189 @@
+{
+  "name": "bbmodel-unpack",
+  "displayName": "BBModel Unpack",
+  "description": "Extract Bedrock geo.json, animations, animation controllers, textures and metadata from Blockbench .bbmodel files — right from the Explorer.",
+  "version": "0.1.0",
+  "publisher": "Kaioga",
+  "license": "GPL-3.0-only",
+  "icon": "media/icon.png",
+  "galleryBanner": {
+    "color": "#131a22",
+    "theme": "dark"
+  },
+  "engines": {
+    "vscode": "^1.90.0"
+  },
+  "categories": [
+    "Other",
+    "Visualization"
+  ],
+  "keywords": [
+    "blockbench",
+    "bbmodel",
+    "minecraft",
+    "bedrock",
+    "geometry",
+    "animation",
+    "texture",
+    "extract",
+    "geo.json",
+    "resource pack"
+  ],
+  "author": {
+    "name": "Kaioga5"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Kaioga5/BBModel-Unpack.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Kaioga5/BBModel-Unpack/issues"
+  },
+  "homepage": "https://github.com/Kaioga5/BBModel-Unpack#readme",
+  "main": "./out/extension.js",
+  "activationEvents": [
+    "workspaceContains:**/*.bbmodel"
+  ],
+  "capabilities": {
+    "untrustedWorkspaces": {
+      "supported": true,
+      "description": "BBModel Unpack only reads .bbmodel files as JSON data and writes extracted files. It never executes content from the model."
+    },
+    "virtualWorkspaces": {
+      "supported": false,
+      "description": "Extraction reads and writes real files and currently requires a local (or remote host) file system."
+    }
+  },
+  "contributes": {
+    "commands": [
+      {
+        "command": "bbmodel-unpack.extractAll",
+        "title": "Extract BBModel Contents",
+        "category": "BBModel Unpack"
+      },
+      {
+        "command": "bbmodel-unpack.extractTextures",
+        "title": "Extract Textures Only",
+        "category": "BBModel Unpack"
+      },
+      {
+        "command": "bbmodel-unpack.extractGeometry",
+        "title": "Extract Geometry Only",
+        "category": "BBModel Unpack"
+      },
+      {
+        "command": "bbmodel-unpack.extractAnimations",
+        "title": "Extract Animations Only",
+        "category": "BBModel Unpack"
+      },
+      {
+        "command": "bbmodel-unpack.preview",
+        "title": "Preview BBModel Contents",
+        "category": "BBModel Unpack"
+      },
+      {
+        "command": "bbmodel-unpack.extractFolder",
+        "title": "Extract All BBModels in Folder",
+        "category": "BBModel Unpack"
+      }
+    ],
+    "menus": {
+      "explorer/context": [
+        {
+          "command": "bbmodel-unpack.extractAll",
+          "when": "resourceExtname =~ /^\\.bbmodel$/i",
+          "group": "7_modification@1"
+        },
+        {
+          "command": "bbmodel-unpack.extractGeometry",
+          "when": "resourceExtname =~ /^\\.bbmodel$/i",
+          "group": "7_modification@2"
+        },
+        {
+          "command": "bbmodel-unpack.extractAnimations",
+          "when": "resourceExtname =~ /^\\.bbmodel$/i",
+          "group": "7_modification@3"
+        },
+        {
+          "command": "bbmodel-unpack.extractTextures",
+          "when": "resourceExtname =~ /^\\.bbmodel$/i",
+          "group": "7_modification@4"
+        },
+        {
+          "command": "bbmodel-unpack.preview",
+          "when": "resourceExtname =~ /^\\.bbmodel$/i",
+          "group": "7_modification@5"
+        },
+        {
+          "command": "bbmodel-unpack.extractFolder",
+          "when": "explorerResourceIsFolder",
+          "group": "7_modification@6"
+        }
+      ]
+    },
+    "configuration": {
+      "title": "BBModel Unpack",
+      "properties": {
+        "bbmodelUnpack.output.mode": {
+          "type": "string",
+          "enum": [
+            "alongside",
+            "ask"
+          ],
+          "enumDescriptions": [
+            "Create a '<model name>_extracted' folder next to the .bbmodel file.",
+            "Ask for a destination folder every time; the '<model name>_extracted' folder is created inside it."
+          ],
+          "default": "alongside",
+          "description": "Where extracted files are written."
+        },
+        "bbmodelUnpack.output.onExisting": {
+          "type": "string",
+          "enum": [
+            "ask",
+            "newFolder",
+            "merge",
+            "overwrite"
+          ],
+          "enumDescriptions": [
+            "Ask what to do when the output folder already exists and is not empty.",
+            "Silently pick a new folder name such as '<name>_extracted-2'.",
+            "Write into the existing folder but never overwrite files; colliding names get a ' (2)' suffix.",
+            "Write into the existing folder and overwrite files that have the same name."
+          ],
+          "default": "ask",
+          "description": "What to do when the output folder already exists and is not empty."
+        },
+        "bbmodelUnpack.output.prettyJson": {
+          "type": "boolean",
+          "default": true,
+          "description": "Pretty-print generated JSON files. Disable for compact single-line output."
+        },
+        "bbmodelUnpack.explorer.badges": {
+          "type": "boolean",
+          "default": true,
+          "description": "Show a 'BB' badge next to .bbmodel files in the Explorer."
+        }
+      }
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "lint": "eslint src",
+    "pretest": "npm run compile",
+    "test": "node --test \"out/test/**/*.test.js\"",
+    "fixtures": "node scripts/generate-fixtures.js",
+    "icon": "node scripts/generate-icon.js",
+    "package": "vsce package"
+  },
+  "devDependencies": {
+    "@types/node": "^20.14.0",
+    "@types/vscode": "^1.90.0",
+    "@vscode/vsce": "^3.3.0",
+    "eslint": "^9.9.0",
+    "typescript": "^5.5.0",
+    "typescript-eslint": "^8.2.0"
+  }
+}
