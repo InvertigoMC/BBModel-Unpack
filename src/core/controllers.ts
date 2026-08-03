@@ -1,20 +1,3 @@
-/**
- * Blockbench animation controllers -> Bedrock `.animation_controllers.json`.
- *
- * Mirrors `AnimationController.compileForBedrock()` and
- * `AnimationControllerState.compileForBedrock()` in Blockbench
- * (`js/animations/animation_controllers.js`):
- *
- * - `initial_state` is omitted when it is the state literally named "default".
- * - State animations are written as `"key"` or `{"key": "blend expression"}`.
- * - `on_entry` / `on_exit` become arrays of `;`-terminated Molang lines
- *   (lines starting with `/` are slash commands and stay untouched).
- * - Transitions become `[{ "<target state name>": "<condition>" }]`.
- * - `bind_to_actor` is written as `false` only when disabled (Bedrock's
- *   default is true).
- * - The file wrapper uses format_version 1.19.0, like Blockbench.
- */
-
 import { BBAnimationController, BBControllerState } from './types';
 import { cleanNumber, toNumber, trimFloat } from './mathUtil';
 
@@ -25,7 +8,6 @@ export interface ControllersResult {
   warnings: string[];
 }
 
-/** Split a Molang script block into normalized instruction lines. */
 function scriptLines(script: string | undefined): string[] | undefined {
   if (!script || script === '\\n') return undefined;
   let lines = script.split('\n');
@@ -60,7 +42,6 @@ function compileState(
     object.particle_effects = particles.map((particle) => {
       const entry: Record<string, unknown> = { effect: particle?.effect || '' };
       if (particle?.locator) entry.locator = particle.locator;
-      // Bedrock defaults bind_to_actor to true; only write it when disabled.
       if (!particle?.bind_to_actor) entry.bind_to_actor = false;
       if (particle?.pre_effect_script) entry.pre_effect_script = particle.pre_effect_script;
       return entry;
@@ -131,7 +112,6 @@ function compileController(
   return object;
 }
 
-/** Convert all animation controllers into one Bedrock controllers file. */
 export function convertControllersToBedrock(controllers: BBAnimationController[]): ControllersResult {
   const warnings: string[] = [];
   const valid = controllers.filter((c) => c && typeof c === 'object');

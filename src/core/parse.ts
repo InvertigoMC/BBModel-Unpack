@@ -1,15 +1,3 @@
-/**
- * Safe parsing and normalization of `.bbmodel` files.
- *
- * Nothing in here trusts the input: the file may be malformed JSON, an
- * LZUTF8-compressed Blockbench backup, a different JSON document renamed to
- * `.bbmodel`, or a valid project from any Blockbench era. Old formats are
- * migrated the same way Blockbench's own `processCompatibility()` does
- * (js/formats/bbmodel.js), and the two outliner layouts (inline groups in
- * bbmodel <= 4.x, flat `groups` array + uuid tree in 5.0+) are unified into
- * one normalized tree.
- */
-
 import {
   BBElement,
   BBGroup,
@@ -21,11 +9,10 @@ import {
 } from './types';
 import { compareVersions, toNumber, toVec3 } from './mathUtil';
 
-/** Base class for all errors this extension raises on purpose. */
 export class BBModelError extends Error {
   constructor(
     message: string,
-    /** Short machine-readable category used in logs. */
+
     public readonly code: 'parse' | 'unsupported' | 'shape' | 'io'
   ) {
     super(message);
@@ -33,16 +20,10 @@ export class BBModelError extends Error {
   }
 }
 
-/** Strip a UTF-8 byte order mark if present. */
 function stripBom(text: string): string {
   return text.charCodeAt(0) === 0xfeff ? text.slice(1) : text;
 }
 
-/**
- * Parse the text of a .bbmodel file into a raw object.
- *
- * @throws BBModelError with a user-actionable message on failure.
- */
 export function parseBBModelText(text: string): BBModelFile {
   const content = stripBom(text).trimStart();
 
@@ -68,7 +49,6 @@ export function parseBBModelText(text: string): BBModelFile {
 
   const model = data as BBModelFile;
 
-  // Heuristic: a real .bbmodel has a meta header and/or the well-known arrays.
   const looksLikeBBModel =
     (typeof model.meta === 'object' && model.meta !== null) ||
     Array.isArray(model.elements) ||
@@ -86,16 +66,6 @@ export function parseBBModelText(text: string): BBModelFile {
   return model;
 }
 
-/**
- * In-place legacy migrations, mirroring Blockbench's `processCompatibility()`:
- * - `cubes` -> `elements` (very old files)
- * - `geometry_name` -> `model_identifier`
- * - missing `meta.model_format` inferred from `meta.bone_rig`
- * - box-UV `shade: false` -> `mirror_uv: true` (before container 4.5)
- * - inverted outliner Z rotation (before container 3.2)
- *
- * Returns human-readable notes about what was migrated.
- */
 export function applyCompatibility(model: BBModelFile): string[] {
   const notes: string[] = [];
   const meta = (model.meta ??= {});
@@ -158,7 +128,6 @@ const ELEMENT_TYPES = new Set([
   'spline_mesh',
 ]);
 
-/** The element type, defaulting to "cube" for legacy entries without `type`. */
 export function elementType(element: BBElement): string {
   const t = typeof element.type === 'string' ? element.type : 'cube';
   return ELEMENT_TYPES.has(t) ? t : t;
@@ -204,8 +173,6 @@ function normalizeNode(
   seen: Set<string>
 ): NormalizedNode | undefined {
   if (typeof node === 'string') {
-    // A uuid leaf: usually an element, but in 5.0 files a group reference can
-    // in principle appear as a bare string too.
     if (elementsByUuid.has(node)) return { kind: 'element', uuid: node };
     const groupData = groupsByUuid.get(node);
     if (groupData) {
@@ -219,14 +186,11 @@ function normalizeNode(
 
   if (typeof node !== 'object' || node === null) return undefined;
 
-  // Object node: legacy inline group, or a {uuid, children} reference whose
-  // data lives in the flat `groups` array (bbmodel 5.0+).
   const uuid = typeof node.uuid === 'string' ? node.uuid : undefined;
   const referenced = uuid ? groupsByUuid.get(uuid) : undefined;
   if (referenced && node.name === undefined) {
     if (uuid && seen.has(uuid)) return undefined;
     if (uuid) seen.add(uuid);
-    // Children come from the outliner tree, everything else from the group data.
     const merged: BBGroup = { ...referenced, children: node.children ?? [] };
     return {
       kind: 'group',
@@ -240,10 +204,6 @@ function normalizeNode(
   return { kind: 'group', group: normalizeGroup(node, groupsByUuid, elementsByUuid, warnings, seen) };
 }
 
-/**
- * Build the normalized model that all converters consume. Never throws for
- * missing sections; problems surface in `warnings` instead.
- */
 export function normalizeModel(model: BBModelFile): NormalizedModel {
   const warnings = applyCompatibility(model);
   const meta = model.meta ?? {};
@@ -285,7 +245,6 @@ export function normalizeModel(model: BBModelFile): NormalizedModel {
     }
   }
 
-  // Elements that exist but are referenced nowhere in the outliner.
   const referenced = new Set<string>();
   const collect = (nodes: NormalizedNode[]): void => {
     for (const node of nodes) {
@@ -340,7 +299,6 @@ export function normalizeModel(model: BBModelFile): NormalizedModel {
   };
 }
 
-/** Convenience: parse text and normalize in one step. */
 export function loadBBModel(text: string): NormalizedModel {
   return normalizeModel(parseBBModelText(text));
 }

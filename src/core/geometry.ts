@@ -1,26 +1,3 @@
-/**
- * Blockbench project -> Minecraft Bedrock `.geo.json` conversion.
- *
- * This reimplements the compile path of Blockbench's Bedrock codec
- * (`js/formats/bedrock/bedrock.js`) so the output matches what Blockbench
- * itself exports:
- *
- * - Blockbench's X axis is mirrored relative to Bedrock model space, so
- *   cube `origin.x` becomes `-to.x`, pivots negate X, and rotations negate
- *   X and Y (Z keeps its sign).
- * - Box-UV cubes export `uv: [u, v]` (the uv_offset); per-face UV cubes
- *   export `uv: {face: {uv, uv_size}}` with the up/down faces flipped to the
- *   opposite corner, matching the Bedrock convention.
- * - Loose elements at the outliner root are gathered into a synthetic
- *   "bb_main" bone, exactly like Blockbench does.
- * - format_version is 1.12.0, raised to 1.16.0 when a bone uses a Bedrock
- *   binding and to 1.21.0 when any face uses UV rotation.
- *
- * Free-form meshes cannot be represented in the Bedrock geometry schema
- * (its `poly_mesh` is experimental and Blockbench does not export it), so
- * they are counted and reported instead of silently dropped.
- */
-
 import {
   BBElement,
   BBFace,
@@ -74,7 +51,7 @@ interface BedrockBone {
 }
 
 export interface GeometryResult {
-  /** The complete geo.json document, or null when there is nothing to convert. */
+
   file: Record<string, unknown> | null;
   formatVersion: string;
   identifier: string;
@@ -89,7 +66,6 @@ function cleanVec(vec: Vec3): Vec3 {
   return [cleanNumber(vec[0]), cleanNumber(vec[1]), cleanNumber(vec[2])];
 }
 
-/** Mirrors `compileCube` in Blockbench's Bedrock codec. */
 function compileCube(
   cube: BBElement,
   boneMirror: boolean,
@@ -100,7 +76,6 @@ function compileCube(
   const from = toVec3(cube.from);
   const to = toVec3(cube.to);
   const size: Vec3 = [to[0] - from[0], to[1] - from[1], to[2] - from[2]];
-  // -(from.x + size.x) === -to.x, computed directly to avoid float noise.
   const origin: Vec3 = [-to[0], from[1], from[2]];
 
   const template: BedrockCube = {
@@ -123,7 +98,6 @@ function compileCube(
   if (boxUv) {
     const uvOffset = Array.isArray(cube.uv_offset) ? cube.uv_offset : [0, 0];
     template.uv = [cleanNumber(toNumber(uvOffset[0], 0)), cleanNumber(toNumber(uvOffset[1], 0))];
-    // Blockbench: emit cube-level mirror only when it differs from the bone's.
     if (cube.mirror_uv === !boneMirror) template.mirror = cube.mirror_uv;
   } else {
     const uv: Partial<Record<string, BedrockCubeFaceUv>> = {};
@@ -148,7 +122,6 @@ function compileCube(
         entry.material_instance = face.material_name;
       }
       if (key === 'up' || key === 'down') {
-        // Bedrock stores up/down UVs from the opposite corner.
         entry.uv = [cleanNumber(entry.uv[0] + entry.uv_size[0]), cleanNumber(entry.uv[1] + entry.uv_size[1])];
         entry.uv_size = [cleanNumber(-entry.uv_size[0]), cleanNumber(-entry.uv_size[1])];
       }
@@ -171,14 +144,12 @@ interface BoneBuildContext {
   flags: { uvRotation: boolean; rescale: boolean; binding: boolean };
 }
 
-/** True when a non-exported group still has exported descendants (Blockbench keeps those). */
 function hasExportedDescendants(group: NormalizedGroup): boolean {
   return group.children.some((child) =>
     child.kind === 'element' ? true : child.group.export || hasExportedDescendants(child.group)
   );
 }
 
-/** Mirrors `compileGroup` in Blockbench's Bedrock codec. */
 function compileGroup(group: NormalizedGroup, parentName: string | undefined, ctx: BoneBuildContext): void {
   if (!group.export && !hasExportedDescendants(group)) return;
 
@@ -277,10 +248,6 @@ function compileGroup(group: NormalizedGroup, parentName: string | undefined, ct
   for (const child of childGroups) compileGroup(child, name, ctx);
 }
 
-/**
- * Convert the normalized model into a Bedrock geometry file.
- * Returns `file: null` when the model has no convertible content.
- */
 export function convertToBedrockGeometry(model: NormalizedModel): GeometryResult {
   const warnings: string[] = [];
   const ctx: BoneBuildContext = {
@@ -295,7 +262,6 @@ export function convertToBedrockGeometry(model: NormalizedModel): GeometryResult
     flags: { uvRotation: false, rescale: false, binding: false },
   };
 
-  // Loose elements at the outliner root go into a synthetic "bb_main" bone.
   const looseElements = model.rootNodes.filter((n): n is NormalizedNode & { kind: 'element' } => n.kind === 'element');
   const rootGroups = model.rootNodes.filter((n): n is NormalizedNode & { kind: 'group' } => n.kind === 'group');
 
@@ -344,7 +310,6 @@ export function convertToBedrockGeometry(model: NormalizedModel): GeometryResult
     );
   }
 
-  // Same escalation rules as Blockbench's getFormatVersion().
   let formatVersion = '1.12.0';
   if (ctx.flags.binding) formatVersion = '1.16.0';
   if (ctx.flags.uvRotation) {

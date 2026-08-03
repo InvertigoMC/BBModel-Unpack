@@ -6,6 +6,7 @@
     "outDir": "out",
     "rootDir": "src",
     "sourceMap": true,
+    "removeComments": true,
     "strict": true,
     "noImplicitOverride": true,
     "noUnusedLocals": true,

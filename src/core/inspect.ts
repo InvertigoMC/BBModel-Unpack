@@ -1,9 +1,3 @@
-/**
- * Non-destructive inspection of a normalized model: counts what is present,
- * which is used for the "Preview BBModel Contents" command and for progress
- * and report output.
- */
-
 import { NormalizedModel, NormalizedNode } from './types';
 import { elementType } from './parse';
 import { animationSpan } from './animations';
@@ -67,7 +61,6 @@ export function buildInventory(model: NormalizedModel): ModelInventory {
   };
 }
 
-/** Render the inventory as Markdown for the preview document. */
 export function renderInventoryMarkdown(
   inventory: ModelInventory,
   model: NormalizedModel,

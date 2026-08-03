@@ -1,13 +1,3 @@
-/**
- * Extension entry point: creates the output channel, registers the commands,
- * and installs the Explorer "BB" badge for .bbmodel files.
- *
- * Activation: commands self-activate (VS Code >= 1.74). The additional
- * workspaceContains event (.bbmodel glob, declared in package.json) activates
- * the extension when a workspace holds model files so the badge shows up
- * before any command has run. activate() does no I/O and stays fast.
- */
-
 import * as vscode from 'vscode';
 import {
   extractCommand,
@@ -59,5 +49,4 @@ export function activate(context: vscode.ExtensionContext): void {
 }
 
 export function deactivate(): void {
-  // Nothing to clean up: all disposables are managed via context.subscriptions.
 }

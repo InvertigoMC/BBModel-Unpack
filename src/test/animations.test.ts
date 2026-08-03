@@ -36,7 +36,6 @@ describe('convertAnimationsToBedrock', () => {
   });
 
   it('wraps Molang on mirrored axes as -(expr) and collapses single keyframes', () => {
-    // One position keyframe at t=0 with a Molang X -> collapsed to a plain value.
     const position = get(idle, 'bones', 'head', 'position');
     assert.deepEqual(position, ['-(math.sin(query.anim_time * 90))', 1, 0]);
     assert.ok(result.warnings.some((w) => w.includes('-(expr)')));
@@ -132,7 +131,6 @@ describe('convertAnimationsToBedrock', () => {
     );
     const converted = convertAnimationsToBedrock(model);
     const rotation = get(converted.file, 'animations', 'anim.snap', 'bones', 'bone', 'rotation');
-    // 0.333333 snapped to 1/20 grid -> 0.35; 0.75 stays.
     assert.deepEqual(Object.keys(rotation).sort(), ['0.35', '0.75']);
   });
 

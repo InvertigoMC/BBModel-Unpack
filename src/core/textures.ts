@@ -1,19 +1,7 @@
-/**
- * Texture extraction. Embedded textures are stored in the `textures` array
- * as base64 data URLs (`source: "data:image/png;base64,..."`). This module
- * decodes them to raw bytes, derives safe unique file names, optionally
- * emits a Minecraft `.mcmeta` for flipbook/animated textures, and reports
- * textures that are only stored as external path references.
- *
- * Decoding is pure data handling: base64 -> bytes. Nothing from the model is
- * ever evaluated or executed, and file names are fully sanitized.
- */
-
 import { BBTexture } from './types';
 import { sanitizeFileName, splitExtension, uniqueName } from './names';
 import { toNumber } from './mathUtil';
 
-/** Known image MIME types and their file extensions. */
 const MIME_EXTENSIONS: Record<string, string> = {
   'image/png': '.png',
   'image/jpeg': '.jpg',
@@ -34,23 +22,23 @@ export interface DecodedLayer {
 }
 
 export interface TextureItem {
-  /** Index in the model's `textures` array. */
+
   index: number;
-  /** Safe file name including extension (unique within this extraction). */
+
   fileName: string;
-  /** Decoded image bytes; undefined when the texture is not embedded. */
+
   bytes?: Uint8Array;
-  /** Original name as stored in the model. */
+
   originalName: string;
-  /** External path recorded in the model (informational). */
+
   externalPath?: string;
-  /** Relative path recorded in the model (resolvable next to the .bbmodel). */
+
   relativePath?: string;
-  /** Optional Minecraft animation metadata (written as `<fileName>.mcmeta`). */
+
   mcmeta?: Record<string, unknown>;
-  /** Decoded texture layers, when the texture uses Blockbench layers. */
+
   layers: DecodedLayer[];
-  /** Non-fatal notes about this texture. */
+
   notes: string[];
 }
 
@@ -61,7 +49,6 @@ export interface TexturesResult {
   warnings: string[];
 }
 
-/** Decode a base64 data URL into bytes, or explain why it cannot be. */
 function decodeDataUrl(
   source: string
 ): { bytes: Uint8Array; ext: string } | { error: string } {
@@ -71,9 +58,6 @@ function decodeDataUrl(
   }
   const [, mime, payload] = match;
   const base64 = payload.replace(/\s+/g, '');
-  if (!/^[A-Za-z0-9+/]*={0,2}$/.test(base64)) {
-    return { error: 'base64 payload contains invalid characters' };
-  }
   let bytes: Buffer;
   try {
     bytes = Buffer.from(base64, 'base64');
@@ -81,6 +65,10 @@ function decodeDataUrl(
     return { error: `base64 decoding failed: ${err instanceof Error ? err.message : String(err)}` };
   }
   if (!bytes.length) return { error: 'base64 payload is empty' };
+  const padding = base64.endsWith('==') ? 2 : base64.endsWith('=') ? 1 : 0;
+  if (bytes.length !== Math.floor((base64.length * 3) / 4) - padding) {
+    return { error: 'base64 payload contains invalid characters' };
+  }
   const ext = MIME_EXTENSIONS[mime.toLowerCase()];
   if (!ext) {
     return { bytes, ext: '.bin' };
@@ -88,7 +76,6 @@ function decodeDataUrl(
   return { bytes, ext };
 }
 
-/** Build `.mcmeta` animation data for flipbook textures, when configured. */
 function buildMcmeta(texture: BBTexture): Record<string, unknown> | undefined {
   const frameTime = toNumber(texture.frame_time, 0);
   const hasCustomOrder = texture.frame_order_type === 'custom' && typeof texture.frame_order === 'string';
@@ -108,7 +95,6 @@ function buildMcmeta(texture: BBTexture): Record<string, unknown> | undefined {
   return { animation };
 }
 
-/** Decode all textures of a model. Pure function: no file system access. */
 export function decodeTextures(textures: BBTexture[]): TexturesResult {
   const warnings: string[] = [];
   const items: TextureItem[] = [];
@@ -140,7 +126,6 @@ export function decodeTextures(textures: BBTexture[]): TexturesResult {
       notes.push('Texture "source" is not a data URL; only its metadata was extracted.');
     }
 
-    // Derive the output file name: keep the model's name, normalize the extension.
     let stemSource = sanitizeFileName(originalName, `texture_${index}`);
     const split = splitExtension(stemSource);
     if (split.ext && (split.ext.toLowerCase() === ext || MIME_EXTENSIONS[`image/${split.ext.slice(1).toLowerCase()}`])) {

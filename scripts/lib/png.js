@@ -1,13 +1,7 @@
-/**
- * Minimal dependency-free PNG encoder (RGBA, 8-bit, no interlace) plus a tiny
- * software canvas. Used by the asset scripts to generate the extension icon
- * and the embedded fixture textures deterministically on any platform.
- */
 'use strict';
 
 const zlib = require('node:zlib');
 
-/* ------------------------------------------------------------------ CRC32 */
 const CRC_TABLE = (() => {
   const table = new Uint32Array(256);
   for (let n = 0; n < 256; n++) {
@@ -35,7 +29,6 @@ function chunk(type, data) {
   return Buffer.concat([len, typeBuf, data, crcBuf]);
 }
 
-/** Encode an RGBA pixel buffer (width*height*4) as a PNG file. */
 function encodePng(width, height, rgba) {
   const signature = Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]);
   const ihdr = Buffer.alloc(13);
@@ -63,7 +56,6 @@ function encodePng(width, height, rgba) {
   ]);
 }
 
-/* ----------------------------------------------------------------- Canvas */
 class Canvas {
   constructor(width, height) {
     this.width = width;
@@ -86,7 +78,6 @@ class Canvas {
     }
   }
 
-  /** Even-odd scanline polygon fill. `points` is [[x, y], ...]. */
   fillPoly(points, color) {
     let minY = Infinity;
     let maxY = -Infinity;
@@ -112,7 +103,6 @@ class Canvas {
     }
   }
 
-  /** Fill a rounded rectangle covering the whole canvas (icon background). */
   fillRoundedBackground(radius, color) {
     const { width: w, height: h } = this;
     for (let y = 0; y < h; y++) {

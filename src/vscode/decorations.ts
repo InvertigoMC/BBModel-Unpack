@@ -1,10 +1,3 @@
-/**
- * Explorer badge: marks `.bbmodel` files with a "BB" badge and a short static
- * tooltip. Deliberately minimal — no file reading, no parsing — so it costs
- * nothing even in huge workspaces. (Rich hover previews were removed on
- * purpose; this badge is just a visual marker.)
- */
-
 import * as vscode from 'vscode';
 
 export class BBModelBadgeProvider implements vscode.FileDecorationProvider, vscode.Disposable {
@@ -13,7 +6,6 @@ export class BBModelBadgeProvider implements vscode.FileDecorationProvider, vsco
   private readonly configListener: vscode.Disposable;
 
   constructor() {
-    // Refresh all decorations when the toggle setting changes.
     this.configListener = vscode.workspace.onDidChangeConfiguration((event) => {
       if (event.affectsConfiguration('bbmodelUnpack.explorer.badges')) {
         this.emitter.fire(undefined);

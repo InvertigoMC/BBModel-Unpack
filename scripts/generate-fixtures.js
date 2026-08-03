@@ -1,10 +1,3 @@
-/**
- * Generates the test fixtures in fixtures/ deterministically, including real
- * embedded PNG textures (encoded with the dependency-free encoder in
- * scripts/lib/png.js). Safe to re-run at any time; output is stable.
- *
- * Usage: node scripts/generate-fixtures.js
- */
 'use strict';
 
 const fs = require('node:fs');
@@ -13,7 +6,6 @@ const { Canvas } = require('./lib/png');
 
 const OUT_DIR = path.join(__dirname, '..', 'fixtures');
 
-/** Deterministic checkerboard texture as a base64 data URL. */
 function checkerDataUrl(width, height, cell, colorA, colorB) {
   const c = new Canvas(width, height);
   for (let y = 0; y < height; y++) {
@@ -25,9 +17,6 @@ function checkerDataUrl(width, height, cell, colorA, colorB) {
   return `data:image/png;base64,${c.toPng().toString('base64')}`;
 }
 
-/* ---------------------------------------------------------------------- */
-/* 1. simple_cube.bbmodel — minimal Bedrock box-UV model                   */
-/* ---------------------------------------------------------------------- */
 const simpleCube = {
   meta: { format_version: '4.5', model_format: 'bedrock', box_uv: true },
   name: 'simple_cube',
@@ -91,10 +80,6 @@ const simpleCube = {
   ],
 };
 
-/* ---------------------------------------------------------------------- */
-/* 2. animated_bot.bbmodel — per-face UV, nested bones, animations,        */
-/*    controller, locator, null object, mesh, display, flipbook texture    */
-/* ---------------------------------------------------------------------- */
 const animatedBot = {
   meta: { format_version: '4.9', model_format: 'bedrock', box_uv: false },
   name: 'animated_bot',
@@ -355,10 +340,6 @@ const animatedBot = {
   },
 };
 
-/* ---------------------------------------------------------------------- */
-/* 3. legacy_box.bbmodel — old container (3.6): inline outliner groups,    */
-/*    geometry_name, shade:false mirroring                                 */
-/* ---------------------------------------------------------------------- */
 const legacyBox = {
   meta: { format_version: '3.6', box_uv: true, bone_rig: true },
   name: 'legacy_box',
@@ -388,9 +369,6 @@ const legacyBox = {
   textures: [],
 };
 
-/* ---------------------------------------------------------------------- */
-/* 4. groups_v5.bbmodel — bbmodel 5.0 layout: flat groups[] + uuid tree    */
-/* ---------------------------------------------------------------------- */
 const groupsV5 = {
   meta: { format_version: '5.0', model_format: 'bedrock', box_uv: false },
   name: 'groups_v5',
@@ -437,8 +415,6 @@ const groupsV5 = {
   ],
 };
 
-/* ---------------------------------------------------------------------- */
-
 function writeJson(name, value) {
   const target = path.join(OUT_DIR, name);
   fs.writeFileSync(target, JSON.stringify(value, null, '\t') + '\n');
@@ -451,7 +427,6 @@ writeJson('animated_bot.bbmodel', animatedBot);
 writeJson('legacy_box.bbmodel', legacyBox);
 writeJson('groups_v5.bbmodel', groupsV5);
 
-// Malformed inputs for error-path tests.
 fs.writeFileSync(path.join(OUT_DIR, 'broken.bbmodel'), '{ "meta": { "format_version": "4.5" ');
 fs.writeFileSync(path.join(OUT_DIR, 'not_a_model.bbmodel'), JSON.stringify({ hello: 'world' }));
 console.log('Wrote broken.bbmodel, not_a_model.bbmodel');

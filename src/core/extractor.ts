@@ -1,22 +1,3 @@
-/**
- * The extraction pipeline: takes a parsed model, converts/decodes every
- * requested section, and writes an organized output directory:
- *
- *   <out>/
- *     bedrock/                  geometry.json, animations.json, animation_controllers.json
- *     textures/                 decoded PNGs (+ .mcmeta, layers/)
- *     display/                  display.json (Java item display settings snippet)
- *
- * Converted files use plain ".json" names — no ".geo.json"-style compound
- * suffixes. The one exception is "<texture>.png.mcmeta", whose double
- * extension is required by Minecraft itself.
- *
- * No report files are written; the returned ExtractionSummary carries the
- * artifact list and warnings for notifications and the output-channel log.
- * The pipeline never throws for per-artifact problems — those become
- * warnings. It throws only for cancellation or fatal I/O.
- */
-
 import * as path from 'node:path';
 import { NormalizedModel } from './types';
 import { buildInventory, ModelInventory } from './inspect';
@@ -65,14 +46,14 @@ export class ExtractionCancelledError extends Error {
 }
 
 export interface ArtifactRecord {
-  /** Path relative to the output directory, with forward slashes. */
+
   path: string;
   kind: string;
-  /** Where in the .bbmodel the data came from. */
+
   source: string;
-  /** How the data was transformed on the way out. */
+
   transform: string;
-  /** True when the conversion is approximate or drops information. */
+
   lossy: boolean;
   bytes: number;
   notes: string[];
@@ -89,7 +70,7 @@ export interface ExtractionSummary {
 
 export interface ExtractionInput {
   model: NormalizedModel;
-  /** Full path of the source .bbmodel (for the report + relative texture lookup). */
+
   sourcePath: string;
   outDir: string;
   io: FileIO;
@@ -102,7 +83,6 @@ export interface ExtractionInput {
 const textEncoder = new TextEncoder();
 
 function encodeJson(value: unknown, pretty: boolean): Uint8Array {
-  // Tab indentation matches what Blockbench itself writes.
   return textEncoder.encode(pretty ? JSON.stringify(value, null, '\t') + '\n' : JSON.stringify(value));
 }
 
@@ -147,7 +127,6 @@ export async function extractBBModel(input: ExtractionInput): Promise<Extraction
 
   await io.mkdirp(input.outDir);
 
-  /* ----------------------------------------------------------- geometry -- */
   if (wants.has('geometry')) {
     step('Converting geometry to Bedrock geo.json…');
     const geometry = convertToBedrockGeometry(model);
@@ -171,7 +150,6 @@ export async function extractBBModel(input: ExtractionInput): Promise<Extraction
     }
   }
 
-  /* --------------------------------------------------------- animations -- */
   if (wants.has('animations')) {
     step('Converting animations…');
     const animations = convertAnimationsToBedrock(model);
@@ -197,7 +175,6 @@ export async function extractBBModel(input: ExtractionInput): Promise<Extraction
     }
   }
 
-  /* -------------------------------------------------------- controllers -- */
   if (wants.has('controllers')) {
     step('Converting animation controllers…');
     const controllers = convertControllersToBedrock(model.controllers);
@@ -223,7 +200,6 @@ export async function extractBBModel(input: ExtractionInput): Promise<Extraction
     }
   }
 
-  /* ----------------------------------------------------------- textures -- */
   if (wants.has('textures')) {
     step('Decoding textures…');
     const textures = decodeTextures(model.textures);
@@ -234,8 +210,6 @@ export async function extractBBModel(input: ExtractionInput): Promise<Extraction
       checkCancelled();
       let bytes = item.bytes;
       let origin = 'embedded base64 data URL in textures[].source';
-      // Not embedded, but the model records a path relative to the .bbmodel —
-      // resolve and copy it, the same way Blockbench relinks textures.
       if (!bytes && item.relativePath) {
         const resolved = path.resolve(sourceDir, item.relativePath);
         try {
@@ -291,7 +265,6 @@ export async function extractBBModel(input: ExtractionInput): Promise<Extraction
     }
   }
 
-  /* ------------------------------------------------------------ display -- */
   if (wants.has('display') && model.display) {
     step('Extracting display settings…');
     await writeArtifact(

@@ -49,10 +49,8 @@ describe('convertToBedrockGeometry', () => {
 
     const headCube = head.cubes[0];
     assert.deepEqual(headCube.uv.north, { uv: [0, 0], uv_size: [6, 6] });
-    // Up/down faces are stored from the opposite corner in Bedrock:
     assert.deepEqual(headCube.uv.up, { uv: [12, 6], uv_size: [-6, -6] });
     assert.deepEqual(headCube.uv.down, { uv: [18, 6], uv_size: [-6, -6] });
-    // A face with texture: null is omitted entirely:
     assert.equal(bodyCube.uv.down, undefined);
   });
 

@@ -1,9 +1,3 @@
-/**
- * Command implementations: target resolution (context menu, multi-select,
- * command palette), destination selection, conflict handling, progress UI,
- * and result notifications. All heavy lifting happens in `../core`.
- */
-
 import * as path from 'node:path';
 import * as vscode from 'vscode';
 import { ALL_SECTIONS, ExtractSection, ExtractionCancelledError, ExtractionSummary, extractBBModel } from '../core/extractor';
@@ -25,7 +19,6 @@ interface CommandDeps {
   log: vscode.LogOutputChannel;
 }
 
-/** Wrap the VS Code log channel as the core Logger interface. */
 function coreLogger(log: vscode.LogOutputChannel) {
   return {
     info: (message: string) => log.info(message),
@@ -38,11 +31,6 @@ function isBBModelUri(uri: vscode.Uri): boolean {
   return uri.fsPath.toLowerCase().endsWith(BBMODEL_EXT);
 }
 
-/**
- * Figure out which .bbmodel files a command invocation refers to:
- * explorer context menu passes (uri, allSelectedUris); the command palette
- * passes nothing, so fall back to the active editor or an open dialog.
- */
 async function resolveTargets(
   uri: vscode.Uri | undefined,
   uris: vscode.Uri[] | undefined
@@ -90,11 +78,6 @@ interface OutputPlan {
   conflict: ConflictStrategy;
 }
 
-/**
- * Decide where to write and how to treat existing files, honoring the
- * `bbmodelUnpack.output.*` settings and asking the user when configured to.
- * Returns undefined when the user cancels.
- */
 async function planOutput(io: WorkspaceFileIO, sourcePath: string): Promise<OutputPlan | undefined> {
   const config = vscode.workspace.getConfiguration('bbmodelUnpack');
   const mode = config.get<string>('output.mode', 'alongside');
@@ -145,7 +128,6 @@ async function planOutput(io: WorkspaceFileIO, sourcePath: string): Promise<Outp
   return { outDir, conflict };
 }
 
-/** Read + parse a .bbmodel, translating failures into friendly errors. */
 async function readModel(io: WorkspaceFileIO, uri: vscode.Uri, log: vscode.LogOutputChannel) {
   const bytes = await io.readFile(uri.fsPath);
   if (bytes.byteLength > LARGE_FILE_BYTES) {
@@ -192,12 +174,6 @@ async function showSuccess(
   }
 }
 
-/**
- * Shared implementation for "extract all" and "extract textures only".
- * A single target gets the detailed success toast; multiple targets (Explorer
- * multi-select or folder extraction) get per-file log lines and one summary
- * notification at the end. Cancelling during a batch stops the whole batch.
- */
 export async function extractCommand(
   deps: CommandDeps,
   uri: vscode.Uri | undefined,
@@ -294,10 +270,6 @@ export async function extractCommand(
   }
 }
 
-/**
- * "Extract All BBModels in Folder": recursively find every .bbmodel under the
- * right-clicked folder(s), confirm the count, then run a batch extraction.
- */
 export async function extractFolderCommand(
   deps: CommandDeps,
   uri: vscode.Uri | undefined,
@@ -329,7 +301,6 @@ export async function extractFolderCommand(
       );
       continue;
     }
-    // Mixed multi-selections can include .bbmodel files directly.
     if (isBBModelUri(folder)) {
       files.push(folder.fsPath);
       continue;
@@ -372,7 +343,6 @@ export async function extractFolderCommand(
   );
 }
 
-/** "Preview BBModel Contents": open a Markdown summary without writing files. */
 export async function previewCommand(
   deps: CommandDeps,
   uri: vscode.Uri | undefined,
@@ -401,5 +371,5 @@ export async function previewCommand(
 export const SECTIONS_ALL: ExtractSection[] = ALL_SECTIONS;
 export const SECTIONS_TEXTURES: ExtractSection[] = ['textures'];
 export const SECTIONS_GEOMETRY: ExtractSection[] = ['geometry'];
-/** Animations bring their controllers along — they belong to the same system. */
+
 export const SECTIONS_ANIMATIONS: ExtractSection[] = ['animations', 'controllers'];

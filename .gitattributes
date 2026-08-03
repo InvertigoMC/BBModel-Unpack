@@ -1,0 +1,7 @@
+# Normalize line endings: LF in the repository and in working copies,
+# regardless of platform. Prevents CRLF/LF churn between Windows and CI.
+* text=auto eol=lf
+
+# Binary assets — never touch their bytes.
+*.png binary
+*.vsix binary

@@ -1,25 +1,3 @@
-/**
- * Blockbench animations -> Bedrock `.animation.json` conversion.
- *
- * Reimplements the compile path of Blockbench's Bedrock animation codec
- * (`js/formats/bedrock/bedrock_animation.js` and
- * `Keyframe.compileBedrockKeyframe` in `js/animations/keyframe.js`):
- *
- * - Keyframe values are stored in Blockbench space; on export position X and
- *   rotation X/Y are negated (Molang expressions are wrapped as `-(expr)`).
- * - Keyframe times snap to the animation's snapping grid and are written as
- *   "0.0"-style keys.
- * - `catmullrom` keyframes export `lerp_mode`; a keyframe that follows a
- *   `step` keyframe exports a `pre`/`post` pair to reproduce the jump;
- *   two-data-point keyframes export `pre`/`post`.
- * - Bezier curves have no Bedrock equivalent, so segments touching a bezier
- *   keyframe are baked into sampled linear keyframes (as Blockbench does).
- * - A channel with a single simple keyframe collapses to a plain value; a
- *   uniform scale additionally collapses to a single number.
- * - Effect animators export `sound_effects`, `particle_effects` and
- *   `timeline`; loop modes map to `true` / `"hold_on_last_frame"`.
- */
-
 import {
   BBAnimation,
   BBAnimator,
@@ -40,7 +18,7 @@ type KeyframeValue = number | string;
 type KeyframeArray = KeyframeValue[];
 
 export interface AnimationsResult {
-  /** Complete .animation.json document, or null when the model has no animations. */
+
   file: Record<string, unknown> | null;
   count: number;
   names: string[];
@@ -50,7 +28,6 @@ export interface AnimationsResult {
 const TRANSFORM_CHANNELS = ['rotation', 'position', 'scale'] as const;
 type TransformChannel = (typeof TRANSFORM_CHANNELS)[number];
 
-/** Per-axis value of a data point, matching `Keyframe.get`. */
 function getAxis(kf: BBKeyframe, axis: 'x' | 'y' | 'z', dataPoint: number): KeyframeValue {
   const points = kf.data_points ?? [];
   const index = Math.min(Math.max(dataPoint, 0), Math.max(points.length - 1, 0));
@@ -63,7 +40,6 @@ function getArray(kf: BBKeyframe, dataPoint: number): KeyframeArray {
   return [getAxis(kf, 'x', dataPoint), getAxis(kf, 'y', dataPoint), getAxis(kf, 'z', dataPoint)];
 }
 
-/** Numeric-only variant used for bezier baking (Molang cannot be evaluated). */
 function getNumericArray(kf: BBKeyframe, dataPoint: number, fallbackTracker: { molang: boolean }): number[] {
   return getArray(kf, dataPoint).map((v) => {
     if (typeof v === 'number') return v;
@@ -76,7 +52,6 @@ interface FlipTracker {
   molangApproximated: boolean;
 }
 
-/** Negate position X / rotation X+Y, tracking Molang `-(expr)` rewrites. */
 function flipArray(channel: TransformChannel, arr: KeyframeArray, tracker: FlipTracker): KeyframeArray {
   const flipIndex = (i: number) => {
     const { value, approximated } = invertMolangValue(arr[i] as number | string);
@@ -95,7 +70,6 @@ function previousKeyframe(sorted: BBKeyframe[], index: number): BBKeyframe | und
   return index > 0 ? sorted[index - 1] : undefined;
 }
 
-/** Mirrors `Keyframe.compileBedrockKeyframe` for transform channels. */
 function compileTransformKeyframe(
   kf: BBKeyframe,
   sorted: BBKeyframe[],
@@ -130,17 +104,14 @@ function compileTransformKeyframe(
   };
 }
 
-/**
- * Cubic-bezier sampling in (time, value) space, matching Blockbench's
- * `getBezierLerp` (curve sampled at 200 points, nearest two lerped).
- */
-function bezierValueAt(
+type CurvePoint = { x: number; y: number };
+
+function sampleBezierCurve(
   before: BBKeyframe,
   after: BBKeyframe,
   axisIndex: number,
-  time: number,
   tracker: { molang: boolean }
-): number {
+): CurvePoint[] {
   const t0 = toNumber(before.time, 0);
   const t1 = toNumber(after.time, 0);
   const v0 = getNumericArray(before, 1, tracker)[axisIndex];
@@ -157,16 +128,21 @@ function bezierValueAt(
     { x: t1 + leftTime, y: v1 + leftValue },
     { x: t1, y: v1 },
   ];
-  const at = (t: number) => {
+  const points: CurvePoint[] = new Array(200);
+  for (let i = 0; i < 200; i++) {
+    const t = i / 199;
     const u = 1 - t;
-    return {
+    points[i] = {
       x: u * u * u * p[0].x + 3 * u * u * t * p[1].x + 3 * u * t * t * p[2].x + t * t * t * p[3].x,
       y: u * u * u * p[0].y + 3 * u * u * t * p[1].y + 3 * u * t * t * p[2].y + t * t * t * p[3].y,
     };
-  };
+  }
+  return points;
+}
 
-  let closest = at(0);
-  let second = at(1);
+function curveValueAt(points: CurvePoint[], time: number): number {
+  let closest = points[0];
+  let second = points[199];
   let closestDiff = Math.abs(closest.x - time);
   let secondDiff = Math.abs(second.x - time);
   if (secondDiff < closestDiff) {
@@ -174,7 +150,7 @@ function bezierValueAt(
     [closestDiff, secondDiff] = [secondDiff, closestDiff];
   }
   for (let i = 1; i < 200; i++) {
-    const point = at(i / 199);
+    const point = points[i];
     const diff = Math.abs(point.x - time);
     if (diff < closestDiff) {
       second = closest;
@@ -199,7 +175,6 @@ function keyframesOfChannel(animator: BBAnimator, channel: string): BBKeyframe[]
     .sort((a, b) => toNumber(a.time, 0) - toNumber(b.time, 0));
 }
 
-/** Compile a sound/particle effect keyframe (single object or array). */
 function compileEffectKeyframe(kf: BBKeyframe): unknown {
   const points: Record<string, unknown>[] = [];
   for (const dataPoint of kf.data_points ?? []) {
@@ -216,7 +191,6 @@ function compileEffectKeyframe(kf: BBKeyframe): unknown {
   return points.length <= 1 ? points[0] : points;
 }
 
-/** Compile a timeline keyframe into instruction line(s). */
 function compileTimelineKeyframe(kf: BBKeyframe): unknown {
   let scripts: string[] = [];
   for (const dataPoint of kf.data_points ?? []) {
@@ -227,7 +201,6 @@ function compileTimelineKeyframe(kf: BBKeyframe): unknown {
   return scripts.length <= 1 ? scripts[0] : scripts;
 }
 
-/** Build a uuid -> group name map from the normalized outliner tree. */
 function buildGroupNameMap(model: NormalizedModel): Map<string, string> {
   const map = new Map<string, string>();
   const walk = (nodes: NormalizedNode[]): void => {
@@ -332,17 +305,15 @@ function compileAnimation(
         }
         channelTag[timecode] = value;
 
-        // Bake bezier curve segments into sampled keyframes.
         const next = sorted[index + 1];
         if (next && (kf.interpolation === 'bezier' || next.interpolation === 'bezier')) {
           bezierBaked = true;
           const interval = 1 / Math.min(Math.max(snapping, 1), 120);
           const start = toNumber(kf.time, 0);
           const end = toNumber(next.time, 0);
+          const curves = [0, 1, 2].map((axis) => sampleBezierCurve(kf, next, axis, molangInBezier));
           for (let t = start + interval; t < end - interval / 2; t += interval) {
-            const sampled = [0, 1, 2].map((axis) =>
-              cleanNumber(bezierValueAt(kf, next, axis, t, molangInBezier), 4)
-            );
+            const sampled = curves.map((curve) => cleanNumber(curveValueAt(curve, t), 4));
             if (channel === 'position' || channel === 'rotation') sampled[0] = -sampled[0] || 0;
             if (channel === 'rotation') sampled[1] = -sampled[1] || 0;
             channelTag[timecodeString(t, snapping)] = sampled;
@@ -350,7 +321,6 @@ function compileAnimation(
         }
       });
 
-      // Collapse a lone simple keyframe to a plain value (BB "compressing keyframes").
       const timecodes = Object.keys(channelTag);
       if (
         timecodes.length === 1 &&
@@ -396,7 +366,6 @@ function compileAnimation(
   return tag;
 }
 
-/** Convert all animations into a single Bedrock animation file. */
 export function convertAnimationsToBedrock(model: NormalizedModel): AnimationsResult {
   const warnings: string[] = [];
   if (!model.animations.length) {
@@ -429,7 +398,6 @@ export function convertAnimationsToBedrock(model: NormalizedModel): AnimationsRe
   };
 }
 
-/** Human-readable timeline span, used by the inspector ("0 - 1.5s"). */
 export function animationSpan(animation: BBAnimation): string {
   const length = toNumber(animation.length, 0);
   return `${trimFloat(Math.max(length, maxKeyframeTime(animation)), 2)}s`;

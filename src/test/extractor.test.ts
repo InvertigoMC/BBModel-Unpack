@@ -39,8 +39,6 @@ describe('extractBBModel (end to end)', () => {
       options: { sections: ALL_SECTIONS, prettyJson: true, conflict: 'unique' },
     });
 
-    // Converted files use plain .json names (no .geo.json-style suffixes);
-    // only the Minecraft-mandated .png.mcmeta keeps a double extension.
     for (const expected of [
       ['bedrock', 'geometry.json'],
       ['bedrock', 'animations.json'],
@@ -54,18 +52,14 @@ describe('extractBBModel (end to end)', () => {
     }
     assert.ok(!exists(outDir, 'bedrock', 'animated_bot.geo.json'));
 
-    // Raw/metadata dumps and report files are intentionally not written.
     assert.ok(!exists(outDir, 'metadata'));
     assert.ok(!exists(outDir, 'raw'));
     assert.ok(!exists(outDir, 'manifest.json'));
     assert.ok(!exists(outDir, 'extraction-report.md'));
 
-    // The generated geometry must be valid JSON with the expected identifier.
     const geo = JSON.parse(fs.readFileSync(path.join(outDir, 'bedrock', 'geometry.json'), 'utf-8'));
     assert.equal(geo['minecraft:geometry'][0].description.identifier, 'geometry.animated_bot');
 
-    // geo + animation + controllers + 2 textures + mcmeta + display = 7 artifacts,
-    // reported in-memory (for notifications and the log), each with provenance.
     assert.equal(summary.artifacts.length, 7);
     assert.ok(summary.artifacts.every((a) => a.path && a.kind && a.source && a.transform));
     assert.ok(summary.warnings.some((w) => w.includes('mesh')));
@@ -171,7 +165,6 @@ describe('extractBBModel (end to end)', () => {
 
   it('copies textures referenced by relative_path next to the model', async () => {
     const tempDir = await makeTempDir();
-    // Arrange: a model dir with a sibling texture file.
     const modelDir = path.join(tempDir, 'models');
     await fsp.mkdir(path.join(modelDir, 'textures'), { recursive: true });
     const pngBytes = await fsp.readFile(path.join(FIXTURES_DIR, '..', 'media', 'icon.png'));
