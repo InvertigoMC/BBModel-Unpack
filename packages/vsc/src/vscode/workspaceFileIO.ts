@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import { DirEntry, FileIO } from '../core/fileio';
+import { DirEntry, FileIO } from '@bbmodel/core';
 
 export class WorkspaceFileIO implements FileIO {
   async exists(targetPath: string): Promise<boolean> {

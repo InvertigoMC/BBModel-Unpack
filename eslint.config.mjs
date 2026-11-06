@@ -2,11 +2,18 @@ import tseslint from 'typescript-eslint';
 
 export default tseslint.config(
   {
-    ignores: ['out/**', 'node_modules/**', 'scripts/**', 'fixtures/**', '*.mjs'],
+    ignores: [
+      '**/out/**',
+      '**/dist/**',
+      '**/node_modules/**',
+      '**/scripts/**',
+      '**/fixtures/**',
+      '*.mjs',
+    ],
   },
   ...tseslint.configs.recommended,
   {
-    files: ['src/**/*.ts'],
+    files: ['packages/*/src/**/*.ts'],
     rules: {
       '@typescript-eslint/no-explicit-any': 'off',
       '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }],

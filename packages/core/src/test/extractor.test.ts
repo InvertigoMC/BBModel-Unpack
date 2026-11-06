@@ -4,8 +4,8 @@ import * as fs from 'node:fs';
 import * as fsp from 'node:fs/promises';
 import * as os from 'node:os';
 import * as path from 'node:path';
-import { ALL_SECTIONS, extractBBModel, ExtractionCancelledError } from '../core/extractor';
-import { NodeFileIO } from '../core/fileio';
+import { ALL_SECTIONS, extractBBModel, ExtractionCancelledError } from '../extractor';
+import { NodeFileIO } from '../fileio';
 import { FIXTURES_DIR, loadFixtureModel, nullLogger } from './helpers';
 
 const io = new NodeFileIO();
@@ -167,7 +167,13 @@ describe('extractBBModel (end to end)', () => {
     const tempDir = await makeTempDir();
     const modelDir = path.join(tempDir, 'models');
     await fsp.mkdir(path.join(modelDir, 'textures'), { recursive: true });
-    const pngBytes = await fsp.readFile(path.join(FIXTURES_DIR, '..', 'media', 'icon.png'));
+    // A tiny locally generated PNG (1x1 transparent) so the core package stays self-contained.
+    const pngBytes = new Uint8Array(
+      Buffer.from(
+        'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==',
+        'base64'
+      )
+    );
     await fsp.writeFile(path.join(modelDir, 'textures', 'linked.png'), pngBytes);
 
     const model = loadFixtureModel('simple_cube.bbmodel');

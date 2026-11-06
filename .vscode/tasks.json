@@ -3,17 +3,19 @@
   "tasks": [
     {
       "type": "npm",
+      "path": "packages/vsc",
       "script": "compile",
       "problemMatcher": "$tsc",
       "group": { "kind": "build", "isDefault": true },
-      "label": "npm: compile"
+      "label": "npm: compile (vsc extension)"
     },
     {
       "type": "npm",
+      "path": "packages/vsc",
       "script": "watch",
       "problemMatcher": "$tsc-watch",
       "isBackground": true,
-      "label": "npm: watch"
+      "label": "npm: watch (vsc extension)"
     }
   ]
 }

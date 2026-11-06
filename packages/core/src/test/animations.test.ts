@@ -1,7 +1,7 @@
 import { describe, it } from 'node:test';
 import * as assert from 'node:assert/strict';
-import { convertAnimationsToBedrock } from '../core/animations';
-import { loadBBModel } from '../core/parse';
+import { convertAnimationsToBedrock } from '../animations';
+import { loadBBModel } from '../parse';
 import { get, loadFixtureModel } from './helpers';
 
 describe('convertAnimationsToBedrock', () => {

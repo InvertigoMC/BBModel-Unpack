@@ -1,6 +1,6 @@
 import { describe, it } from 'node:test';
 import * as assert from 'node:assert/strict';
-import { sanitizeFileName, sanitizeIdentifier, splitExtension, uniqueName } from '../core/names';
+import { sanitizeFileName, sanitizeIdentifier, splitExtension, uniqueName } from '../names';
 
 describe('sanitizeFileName', () => {
   it('replaces invalid characters', () => {

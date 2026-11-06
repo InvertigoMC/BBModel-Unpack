@@ -1,14 +1,24 @@
 # Changelog
 
-All notable changes to the **BBModel Unpack** extension are documented here.
+All notable changes to the **BBModel Unpack** monorepo are documented here.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and the project uses
 [Semantic Versioning](https://semver.org/).
 
+## [Unreleased]
+
+### Changed
+
+- Restructured as a monorepo:
+  - `@bbmodel/core` — headless `.bbmodel` toolkit (parsing, inventories, Bedrock converters, extraction).
+  - `@bbmodel/vsc` — the BBModel Unpack VS Code extension, now bundling `@bbmodel/core` at build time.
+  - `@bbmodel/mcp` — a new MCP (Model Context Protocol) server exposing the core toolkit over stdio
+    (`bbmodel_inspect`, `bbmodel_read_sections`, `bbmodel_extract`).
+
 ## [0.1.0] — 2026-08-02
 
-Initial release.
-
 ### Added
+
+Initial release.
 
 - **Extract BBModel Contents** command (Explorer context menu, Command Palette, multi-select).
 - **Extract Geometry Only**, **Extract Animations Only** (includes animation controllers),

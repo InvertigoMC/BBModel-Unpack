@@ -3,9 +3,8 @@
 src/**
 out/test/**
 out/**/*.map
-fixtures/**
-scripts/**
-docs/**
+out/**/*.d.ts
+out/vscode/**
 node_modules/**
 .gitignore
 .gitattributes

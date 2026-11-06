@@ -1,0 +1,70 @@
+name: Publish
+
+# Publish @bbmodel/core + @bbmodel/mcp to npm and attach the packaged .vsix
+# to the GitHub release when a `v*` tag is pushed.
+# Run manually (workflow_dispatch) for a dry-run / artifact-only build.
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write # needed only when attaching the .vsix to a release (tag push)
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          registry-url: "https://registry.npmjs.org"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build all packages (core -> vsc + mcp)
+        run: npm run build
+
+      - name: Run tests
+        run: npm test
+
+      - name: Lint
+        run: npm run lint
+
+      # Dry run only when triggered manually; real publish on v* tag push.
+      - name: npm publish (dry run)
+        if: github.event_name == 'workflow_dispatch'
+        run: |
+          npm publish -w packages/core --dry-run
+          npm publish -w packages/mcp --dry-run
+
+      - name: npm publish
+        if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
+        run: |
+          npm publish -w packages/core
+          npm publish -w packages/mcp
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Package VS Code extension
+        run: npm run package:vsc
+
+      - name: Upload .vsix artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: bbmodel-unpack-vsix
+          path: packages/vsc/*.vsix
+          if-no-files-found: error
+
+      - name: Attach .vsix to GitHub release
+        if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: packages/vsc/*.vsix

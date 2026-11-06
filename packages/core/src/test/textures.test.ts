@@ -1,6 +1,6 @@
 import { describe, it } from 'node:test';
 import * as assert from 'node:assert/strict';
-import { decodeTextures } from '../core/textures';
+import { decodeTextures } from '../textures';
 import { loadFixtureModel } from './helpers';
 
 const PNG_MAGIC = [0x89, 0x50, 0x4e, 0x47];

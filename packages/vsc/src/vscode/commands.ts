@@ -1,15 +1,21 @@
 import * as path from 'node:path';
 import * as vscode from 'vscode';
-import { ALL_SECTIONS, ExtractSection, ExtractionCancelledError, ExtractionSummary, extractBBModel } from '../core/extractor';
-import { BBModelError, loadBBModel } from '../core/parse';
-import { buildInventory, renderInventoryMarkdown } from '../core/inspect';
 import {
+  ALL_SECTIONS,
+  BBModelError,
   ConflictStrategy,
+  ExtractSection,
+  ExtractionCancelledError,
+  ExtractionSummary,
+  buildInventory,
   directoryHasEntries,
+  extractBBModel,
   findFilesByExtension,
+  loadBBModel,
   nextAvailableDirectory,
-} from '../core/fileio';
-import { sanitizeFileName } from '../core/names';
+  renderInventoryMarkdown,
+  sanitizeFileName,
+} from '@bbmodel/core';
 import { WorkspaceFileIO } from './workspaceFileIO';
 
 const BBMODEL_EXT = '.bbmodel';

@@ -1,8 +1,8 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
-import { loadBBModel } from '../core/parse';
-import { Logger } from '../core/extractor';
-import { NormalizedModel } from '../core/types';
+import { loadBBModel } from '../parse';
+import { Logger } from '../extractor';
+import { NormalizedModel } from '../types';
 
 export const FIXTURES_DIR = path.resolve(__dirname, '..', '..', 'fixtures');
 

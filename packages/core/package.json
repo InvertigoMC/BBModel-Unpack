@@ -1,0 +1,46 @@
+{
+  "name": "@bbmodel/core",
+  "version": "0.1.0",
+  "description": "Headless Blockbench .bbmodel toolkit: parse models and extract Bedrock geometry, animations, animation controllers, textures and metadata.",
+  "license": "GPL-3.0-only",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "files": [
+    "dist"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./extractor": "./dist/extractor.js",
+    "./parse": "./dist/parse.js",
+    "./inspect": "./dist/inspect.js",
+    "./geometry": "./dist/geometry.js",
+    "./animations": "./dist/animations.js",
+    "./controllers": "./dist/controllers.js",
+    "./textures": "./dist/textures.js",
+    "./fileio": "./dist/fileio.js",
+    "./names": "./dist/names.js",
+    "./mathUtil": "./dist/mathUtil.js",
+    "./types": "./dist/types.js"
+  },
+  "scripts": {
+    "build": "tsc -p ./",
+    "prepublishOnly": "npm run build && npm test",
+    "watch": "tsc -watch -p ./",
+    "lint": "eslint src",
+    "fixtures": "node scripts/generate-fixtures.js",
+    "test": "npm run build && node --test \"dist/test/**/*.test.js\""
+  },
+  "devDependencies": {
+    "@types/node": "^20.14.0",
+    "typescript": "^5.5.0"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

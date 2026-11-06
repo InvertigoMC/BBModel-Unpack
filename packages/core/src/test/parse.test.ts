@@ -1,6 +1,6 @@
 import { describe, it } from 'node:test';
 import * as assert from 'node:assert/strict';
-import { BBModelError, loadBBModel, parseBBModelText } from '../core/parse';
+import { BBModelError, loadBBModel, parseBBModelText } from '../parse';
 import { loadFixtureModel, readFixture } from './helpers';
 
 describe('parseBBModelText', () => {

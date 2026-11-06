@@ -1,7 +1,7 @@
 import { describe, it } from 'node:test';
 import * as assert from 'node:assert/strict';
-import { convertToBedrockGeometry } from '../core/geometry';
-import { loadBBModel } from '../core/parse';
+import { convertToBedrockGeometry } from '../geometry';
+import { loadBBModel } from '../parse';
 import { get, loadFixtureModel } from './helpers';
 
 describe('convertToBedrockGeometry', () => {

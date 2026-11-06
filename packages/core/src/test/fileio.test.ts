@@ -3,7 +3,7 @@ import * as assert from 'node:assert/strict';
 import * as fsp from 'node:fs/promises';
 import * as os from 'node:os';
 import * as path from 'node:path';
-import { findFilesByExtension, NodeFileIO } from '../core/fileio';
+import { findFilesByExtension, NodeFileIO } from '../fileio';
 
 const io = new NodeFileIO();
 const tempRoots: string[] = [];

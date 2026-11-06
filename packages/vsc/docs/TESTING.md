@@ -14,29 +14,32 @@ anything.
 
 ## Setup
 
+The extension lives in `packages/vsc` of this monorepo. Run all commands from the repository
+root unless noted otherwise.
+
 ```bash
 npm install
-npm run fixtures   # regenerates fixtures/ (already committed, safe to re-run)
-npm run compile
+npm run build            # builds @bbmodel/core, then packages/vsc
+npm run fixtures -w packages/core   # regenerates fixtures/ (already committed, safe to re-run)
 ```
 
 ## Automated tests
 
 ```bash
-npm test           # compiles, then runs 70 unit tests via Node's built-in test runner
-npm run lint       # ESLint over src/
+npm test           # compiles @bbmodel/core, then runs 70 unit tests via Node's built-in test runner
+npm run lint       # ESLint over all packages
 ```
 
 The tests cover parsing/normalization (all container eras + malformed input), geometry math,
 animation keyframe compilation, controllers, texture decoding, file-name safety, folder
 scanning, and an end-to-end extraction into a temp directory. They deliberately avoid
-`@vscode/test-electron`: everything under `src/core/` is VS Code–independent by design, so the
-tests run in plain Node in under a second. The thin `src/vscode/` layer is covered by the manual
+`@vscode/test-electron`: the entire `@bbmodel/core` package is VS Code–independent by design, so
+the tests run in plain Node in under a second. The thin `src/vscode/` layer is covered by the manual
 checklist below.
 
 ## Running the extension (Extension Development Host)
 
-1. Open this folder in VS Code (`code .`).
+1. Open the repository root in VS Code (`code .`).
 2. Press **F5** (or Run → Start Debugging → *Run Extension*). A second VS Code window — the
    Extension Development Host — opens with the extension loaded.
 3. In that window, open any folder containing `.bbmodel` files — the repo's `fixtures/` folder
@@ -90,8 +93,8 @@ produce a warning naming the missing path.
 | Symptom | Likely cause / fix |
 | --- | --- |
 | Commands missing from the context menu | File extension isn't `.bbmodel` (the menu uses `resourceExtname`); or the Extension Host didn't reload — run *Developer: Reload Window* |
-| "Cannot find module out/extension.js" on F5 | `npm run compile` didn't run; check the preLaunchTask output |
-| Breakpoints not hit | Ensure `outFiles` in `.vscode/launch.json` matches `out/**` and source maps exist (`npm run compile`) |
+| "Cannot find module out/extension.js" on F5 | builds didn't run; run `npm run build` and check the preLaunchTask output |
+| Breakpoints not hit | Ensure `outFiles` in `.vscode/launch.json` matches `packages/vsc/out/**` and source maps exist (`npm run build`) |
 | Extraction writes nothing, no error | Check the **BBModel Unpack** output channel — sections with no data are skipped by design |
 | `npm test` fails to find fixtures | Run `npm run fixtures` (tests resolve `fixtures/` relative to the repo root) |
 | Badges not visible | Check `bbmodelUnpack.explorer.badges` and VS Code's own `explorer.decorations.badges` setting |
