@@ -1,7 +1,6 @@
 {
   "name": "@bbmodel-tools/render",
   "version": "0.1.2",
-  "private": true,
   "description": "Automated Blockbench rendering for .bbmodel files: drives an isolated Blockbench instance over the Chrome DevTools Protocol and captures framed, transparent PNG previews.",
   "license": "GPL-3.0-only",
   "main": "./dist/index.js",
@@ -12,14 +11,13 @@
   "files": [
     "dist"
   ],
+  "bin": {
+    "bbmodel-render": "./dist/cli.js"
+  },
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
       "default": "./dist/index.js"
-    },
-    "./render": {
-      "types": "./dist/render.d.ts",
-      "default": "./dist/render.js"
     },
     "./locate": {
       "types": "./dist/locate.d.ts",
@@ -46,5 +44,12 @@
     "test": "npm run build && node --test dist/test/framing.test.js dist/test/verify.test.js dist/test/png.test.js",
     "render": "node dist/cli.js",
     "test:e2e": "npm run build && node dist/cli.js ../core/fixtures/animated_bot.bbmodel --out render-e2e.png --width 512"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "typescript": "^5.5.0"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }
