@@ -129,13 +129,13 @@ them), bezier curves are baked, and Molang expressions on mirrored axes are nega
 
 ## Development
 
-This extension is part of a monorepo; the shared logic lives in the `@bbmodels-tools/core` package
-([`packages/core`](../core)) so it can also be used headlessly and from the `@bbmodels-tools/mcp`
+This extension is part of a monorepo; the shared logic lives in the `@bbmodel-tools/core` package
+([`packages/core`](../core)) so it can also be used headlessly and from the `@bbmodel-tools/mcp`
 MCP server ([`packages/mcp`](../mcp)). From the repository root:
 
 ```bash
 npm install                          # install all workspaces
-npm run build                        # build @bbmodels-tools/core, then this extension
+npm run build                        # build @bbmodel-tools/core, then this extension
 npm test                             # unit tests (Node's built-in test runner, in packages/core)
 npm run lint                         # ESLint across the monorepo
 npm run fixtures -w packages/core    # regenerate fixtures/ deterministically

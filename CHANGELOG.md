@@ -9,9 +9,9 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 ### Changed
 
 - Restructured as a monorepo:
-  - `@bbmodels-tools/core` — headless `.bbmodel` toolkit (parsing, inventories, Bedrock converters, extraction).
-  - `@bbmodels-tools/vsc` — the BBModel Unpack VS Code extension, now bundling `@bbmodels-tools/core` at build time.
-  - `@bbmodels-tools/mcp` — a new MCP (Model Context Protocol) server exposing the core toolkit over stdio
+  - `@bbmodel-tools/core` — headless `.bbmodel` toolkit (parsing, inventories, Bedrock converters, extraction).
+  - `@bbmodel-tools/vsc` — the BBModel Unpack VS Code extension, now bundling `@bbmodel-tools/core` at build time.
+  - `@bbmodel-tools/mcp` — a new MCP (Model Context Protocol) server exposing the core toolkit over stdio
     (`bbmodel_inspect`, `bbmodel_read_sections`, `bbmodel_extract`).
 
 ## [0.1.0] — 2026-08-02

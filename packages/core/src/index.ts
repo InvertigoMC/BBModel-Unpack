@@ -11,7 +11,7 @@ export * from './textures';
 export * from './types';
 
 /**
- * Public API of @bbmodels-tools/core.
+ * Public API of @bbmodel-tools/core.
  *
  * - `loadBBModel` / `parseBBModelText` — read .bbmodel files.
  * - `buildInventory` / `renderInventoryMarkdown` — summarize a model.

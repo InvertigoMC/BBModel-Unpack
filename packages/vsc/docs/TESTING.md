@@ -19,21 +19,21 @@ root unless noted otherwise.
 
 ```bash
 npm install
-npm run build            # builds @bbmodels-tools/core, then packages/vsc
+npm run build            # builds @bbmodel-tools/core, then packages/vsc
 npm run fixtures -w packages/core   # regenerates fixtures/ (already committed, safe to re-run)
 ```
 
 ## Automated tests
 
 ```bash
-npm test           # compiles @bbmodels-tools/core, then runs 70 unit tests via Node's built-in test runner
+npm test           # compiles @bbmodel-tools/core, then runs 70 unit tests via Node's built-in test runner
 npm run lint       # ESLint over all packages
 ```
 
 The tests cover parsing/normalization (all container eras + malformed input), geometry math,
 animation keyframe compilation, controllers, texture decoding, file-name safety, folder
 scanning, and an end-to-end extraction into a temp directory. They deliberately avoid
-`@vscode/test-electron`: the entire `@bbmodels-tools/core` package is VS Code–independent by design, so
+`@vscode/test-electron`: the entire `@bbmodel-tools/core` package is VS Code–independent by design, so
 the tests run in plain Node in under a second. The thin `src/vscode/` layer is covered by the manual
 checklist below.
 

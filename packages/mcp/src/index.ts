@@ -28,7 +28,7 @@ import {
   loadBBModel,
   renderInventoryMarkdown,
   sanitizeFileName,
-} from '@bbmodels-tools/core';
+} from '@bbmodel-tools/core';
 
 const nullLogger: Logger = {
   /* MCP servers must only write MCP frames to stdout/stderr */

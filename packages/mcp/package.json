@@ -1,7 +1,7 @@
 {
-  "name": "@bbmodels-tools/mcp",
+  "name": "@bbmodel-tools/mcp",
   "version": "0.1.0",
-  "description": "MCP server exposing @bbmodels-tools/core over stdio: inspect Blockbench .bbmodel files and extract Bedrock geometry, animations, animation controllers and textures.",
+  "description": "MCP server exposing @bbmodel-tools/core over stdio: inspect Blockbench .bbmodel files and extract Bedrock geometry, animations, animation controllers and textures.",
   "license": "GPL-3.0-only",
   "bin": {
     "bbmodel-mcp": "./dist/index.js"
@@ -21,7 +21,7 @@
     "start": "node dist/index.js"
   },
   "dependencies": {
-    "@bbmodels-tools/core": "*",
+    "@bbmodel-tools/core": "*",
     "@modelcontextprotocol/sdk": "^1.17.0"
   },
   "devDependencies": {

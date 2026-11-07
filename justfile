@@ -1,7 +1,7 @@
 # BBModel Unpack monorepo recipes
 # Requires: Node 20+, npm, just (https://github.com/casey/just) — not an npm dependency.
 
-set shell := ["bash", "-cu"]
+set windows-shell := ["powershell.exe", "-NoProfile", "/c"]
 
 # default: list available recipes
 default:
@@ -18,7 +18,7 @@ build:
 # alias for build (kept for muscle memory from the old tsc workflow)
 compile: build
 
-# compile, then run @bbmodels-tools/core unit tests
+# compile, then run @bbmodel-tools/core unit tests
 test:
     npm test
 
@@ -34,7 +34,7 @@ fixtures:
 icon:
     npm run icon -w packages/vsc
 
-# build @bbmodels-tools/core then bundle + package the VS Code extension (.vsix)
+# build @bbmodel-tools/core then bundle + package the VS Code extension (.vsix)
 package-vsc:
     npm run package:vsc
 
@@ -43,7 +43,7 @@ check-publish:
     npm pack --dry-run -w packages/core
     npm pack --dry-run -w packages/mcp
 
-# publish @bbmodels-tools/core and @bbmodels-tools/mcp to npm (requires `npm login`)
+# publish @bbmodel-tools/core and @bbmodel-tools/mcp to npm (requires `npm login`)
 publish:
     npm publish -w packages/core
     npm publish -w packages/mcp
