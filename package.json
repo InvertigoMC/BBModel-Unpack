@@ -12,11 +12,11 @@
     "packages/*"
   ],
   "scripts": {
-    "build": "npm run build -w packages/core && npm run build -w packages/vsc && npm run build -w packages/mcp",
+    "build": "npm run build -w packages/core && npm run build -w packages/render && npm run build -w packages/vsc && npm run build -w packages/mcp",
     "watch": "npm run watch -w packages/core",
     "compile": "npm run build",
     "lint": "eslint packages",
-    "test": "npm run test -w packages/core",
+    "test": "npm run test -w packages/core && npm run test -w packages/render",
     "fixtures": "npm run fixtures -w packages/core",
     "package:vsc": "npm run build -w packages/core && npm run package -w packages/vsc"
   },

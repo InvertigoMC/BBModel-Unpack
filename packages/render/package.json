@@ -1,0 +1,50 @@
+{
+  "name": "@bbmodel-tools/render",
+  "version": "0.1.1",
+  "private": true,
+  "description": "Automated Blockbench rendering for .bbmodel files: drives an isolated Blockbench instance over the Chrome DevTools Protocol and captures framed, transparent PNG previews.",
+  "license": "GPL-3.0-only",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "engines": {
+    "node": ">=22.0.0"
+  },
+  "files": [
+    "dist"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./render": {
+      "types": "./dist/render.d.ts",
+      "default": "./dist/render.js"
+    },
+    "./locate": {
+      "types": "./dist/locate.d.ts",
+      "default": "./dist/locate.js"
+    },
+    "./framing": {
+      "types": "./dist/framing.d.ts",
+      "default": "./dist/framing.js"
+    },
+    "./verify": {
+      "types": "./dist/verify.d.ts",
+      "default": "./dist/verify.js"
+    },
+    "./png": {
+      "types": "./dist/png.d.ts",
+      "default": "./dist/png.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc -p ./",
+    "prepublishOnly": "npm run build && npm test",
+    "watch": "tsc -watch -p ./",
+    "lint": "eslint src",
+    "test": "npm run build && node --test dist/test/framing.test.js dist/test/verify.test.js dist/test/png.test.js",
+    "render": "node dist/cli.js",
+    "test:e2e": "npm run build && node dist/cli.js ../core/fixtures/animated_bot.bbmodel --out render-e2e.png --width 512"
+  }
+}
