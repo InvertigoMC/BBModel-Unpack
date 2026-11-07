@@ -42,11 +42,13 @@ package-vsc:
 check-publish:
     npm pack --dry-run -w packages/core
     npm pack --dry-run -w packages/mcp
+    npm pack --dry-run -w packages/render
 
 # publish @bbmodel-tools/core and @bbmodel-tools/mcp to npm (requires `npm login`)
 publish:
     npm publish -w packages/core
     npm publish -w packages/mcp
+    npm publish -w packages/render
 
 # start the MCP server in the foreground (stdio)
 run-mcp:

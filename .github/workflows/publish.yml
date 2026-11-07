@@ -44,12 +44,14 @@ jobs:
         run: |
           npm publish -w packages/core --dry-run
           npm publish -w packages/mcp --dry-run
+          npm publish -w packages/render --dry-run
 
       - name: npm publish
         if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
         run: |
           npm publish -w packages/core
           npm publish -w packages/mcp
+          npm publish -w packages/render
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
