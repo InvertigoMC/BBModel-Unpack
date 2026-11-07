@@ -1,6 +1,6 @@
 name: Publish
 
-# Publish @bbmodel/core + @bbmodel/mcp to npm and attach the packaged .vsix
+# Publish @bbmodels-tools/core + @bbmodels-tools/mcp to npm and attach the packaged .vsix
 # to the GitHub release when a `v*` tag is pushed.
 # Run manually (workflow_dispatch) for a dry-run / artifact-only build.
 on:

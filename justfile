@@ -18,7 +18,7 @@ build:
 # alias for build (kept for muscle memory from the old tsc workflow)
 compile: build
 
-# compile, then run @bbmodel/core unit tests
+# compile, then run @bbmodels-tools/core unit tests
 test:
     npm test
 
@@ -34,7 +34,7 @@ fixtures:
 icon:
     npm run icon -w packages/vsc
 
-# build @bbmodel/core then bundle + package the VS Code extension (.vsix)
+# build @bbmodels-tools/core then bundle + package the VS Code extension (.vsix)
 package-vsc:
     npm run package:vsc
 
@@ -43,7 +43,7 @@ check-publish:
     npm pack --dry-run -w packages/core
     npm pack --dry-run -w packages/mcp
 
-# publish @bbmodel/core and @bbmodel/mcp to npm (requires `npm login`)
+# publish @bbmodels-tools/core and @bbmodels-tools/mcp to npm (requires `npm login`)
 publish:
     npm publish -w packages/core
     npm publish -w packages/mcp

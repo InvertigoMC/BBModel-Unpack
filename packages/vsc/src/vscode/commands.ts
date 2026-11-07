@@ -15,7 +15,7 @@ import {
   nextAvailableDirectory,
   renderInventoryMarkdown,
   sanitizeFileName,
-} from '@bbmodel/core';
+} from '@bbmodels-tools/core';
 import { WorkspaceFileIO } from './workspaceFileIO';
 
 const BBMODEL_EXT = '.bbmodel';
