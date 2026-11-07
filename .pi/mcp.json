@@ -1,0 +1,10 @@
+{
+  "mcpServers": {
+    "bbmodel": {
+      "command": "node",
+      "args": ["packages/mcp/dist/index.js"],
+      "cwd": ".",
+      "description": "Inspect Blockbench .bbmodel files and extract Bedrock geometry, animations, controllers, textures, and render PNG previews (requires Blockbench installed)."
+    }
+  }
+}

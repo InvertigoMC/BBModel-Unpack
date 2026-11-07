@@ -4,6 +4,19 @@ All notable changes to the **BBModel Unpack** monorepo are documented here.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and the project uses
 [Semantic Versioning](https://semver.org/).
 
+## Unreleased
+
+### Added
+
+- `@bbmodel-tools/render` — new package that renders `.bbmodel` files to framed transparent PNGs using automated
+  isolated Blockbench instances (Chrome DevTools Protocol, no plugins installed, user profile untouched):
+  - `BlockbenchRenderer` — spawns/reuses an isolated Blockbench process (`--userData <temp>` + `--remote-debugging-port`, `locateBlockbench()` resolves the install), loads models in-memory, and captures PNGs via an offscreen `THREE.WebGLRenderer` with hidden grid/gizmos.
+  - Camera framing math (`fitBoxToCamera`) fitted to the world-space bounding box from element meshes so rotated elements/bones are fully in frame; ink-margin verification (`verifyImage`, `classify`) drives automatic reframing retries (up to 3 attempts).
+  - Pure helpers are unit tested without Blockbench (framing, PNG ink analysis, minimal PNG encode/decode); CLI (`node dist/cli.js`) included for manual end-to-end runs.
+  - Camera direction support: presets (`iso`, `front`, `back`, `left`, `right`, `top`, `bottom`), arbitrary direction vectors, and orbit angles in degrees (`CameraAngles` with `yaw`/`elevation`).
+- `@bbmodel-tools/mcp` — new `bbmodel_render` tool wrapping the renderer: saves a PNG next to the model (or explicit `out` path, `overwrite` respected) and returns MCP `image` content plus camera/margins metadata. Window-kill cleanup on SIGINT/SIGTERM; graceful error when Blockbench is not installed.
+- Project `.pi/mcp.json` — registers the `bbmodel` MCP server for pi sessions (4 tools: inspect, read sections, extract, render).
+
 ## [0.1.1] — 2026-11-07
 
 ### Added
