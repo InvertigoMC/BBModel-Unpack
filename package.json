@@ -1,6 +1,6 @@
 {
   "name": "bbmodel-unpack-monorepo",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "private": true,
   "description": "Monorepo for BBModel tooling: @bbmodel-tools/core (headless bbmodel toolkit), @bbmodel-tools/vsc (VS Code extension) and @bbmodel-tools/mcp (MCP server).",
   "license": "GPL-3.0-only",

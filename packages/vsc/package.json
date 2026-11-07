@@ -2,7 +2,7 @@
   "name": "bbmodel-unpack",
   "displayName": "BBModel Unpack",
   "description": "Extract Bedrock geo.json, animations, animation controllers, textures and metadata from Blockbench .bbmodel files — right from the Explorer.",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "private": true,
   "publisher": "Kaioga",
   "license": "GPL-3.0-only",

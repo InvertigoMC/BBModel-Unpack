@@ -1,6 +1,6 @@
 {
   "name": "@bbmodel-tools/core",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Headless Blockbench .bbmodel toolkit: parse models and extract Bedrock geometry, animations, animation controllers, textures and metadata.",
   "license": "GPL-3.0-only",
   "main": "./dist/index.js",

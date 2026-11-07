@@ -4,15 +4,20 @@ All notable changes to the **BBModel Unpack** monorepo are documented here.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and the project uses
 [Semantic Versioning](https://semver.org/).
 
-## [Unreleased]
+## [0.1.1] — 2026-11-07
+
+### Added
+
+- READMEs for `@bbmodel-tools/core` and `@bbmodel-tools/mcp` packages.
 
 ### Changed
 
 - Restructured as a monorepo:
   - `@bbmodel-tools/core` — headless `.bbmodel` toolkit (parsing, inventories, Bedrock converters, extraction).
-  - `@bbmodel-tools/vsc` — the BBModel Unpack VS Code extension, now bundling `@bbmodel-tools/core` at build time.
+  - `bbmodel-unpack` — the BBModel Unpack VS Code extension (npm name kept unscoped for the VSIX manifest), now bundling `@bbmodel-tools/core` at build time.
   - `@bbmodel-tools/mcp` — a new MCP (Model Context Protocol) server exposing the core toolkit over stdio
     (`bbmodel_inspect`, `bbmodel_read_sections`, `bbmodel_extract`).
+- Versions bumped to `0.1.1` across all three packages in preparation for the first npm publish.
 
 ## [0.1.0] — 2026-08-02
 
