@@ -29,6 +29,11 @@ import {
   renderInventoryMarkdown,
   sanitizeFileName,
 } from '@bbmodel-tools/core';
+import {
+  BlockbenchRenderer,
+  CameraDirection,
+  locateBlockbench,
+} from '@bbmodel-tools/render';
 
 const nullLogger: Logger = {
   /* MCP servers must only write MCP frames to stdout/stderr */
@@ -108,6 +113,49 @@ const TOOLS: Tool[] = [
       required: ['file'],
     },
   },
+  {
+    name: 'bbmodel_render',
+    title: 'Render a .bbmodel to PNG',
+    description:
+      'Capture a rendered PNG image of a Blockbench .bbmodel file. Launches an isolated Blockbench '
+      + 'instance (user installation settings are not modified), loads the model in-memory, frames it '
+      + 'with an automatically fitted orthographic camera and saves a transparent PNG. Requires the '
+      + 'Blockbench desktop app to be installed (or BBMODEL_BLOCKBENCH_PATH set) and Node >= 22.',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        file: { type: 'string', description: 'Path to a .bbmodel file' },
+        out: {
+          type: 'string',
+          description: 'Output PNG path. Defaults to "<model>_render.png" next to the source file.',
+        },
+        width: { type: 'number', description: 'Image width in pixels (default 512). Height matches width.' },
+        height: { type: 'number', description: 'Image height in pixels. Defaults to width.' },
+        direction: {
+          type: 'string',
+          description: 'Camera preset: iso (default), front, back, left, right, top or bottom.',
+          enum: ['iso', 'front', 'back', 'left', 'right', 'top', 'bottom'],
+        },
+        yaw: {
+          type: 'number',
+          description: 'Orbit angle around the Y axis in degrees: 0 = front (+Z), 90 = right (+X). Overrides direction preset.',
+        },
+        elevation: {
+          type: 'number',
+          description: 'Elevation angle in degrees: 0 = level, positive = above the model (top = +90). Overrides direction preset.',
+        },
+        padding: {
+          type: 'number',
+          description: 'Extra camera margin relative to the model half-extents (default 1.15).',
+        },
+        overwrite: {
+          type: 'boolean',
+          description: 'Overwrite the output PNG if it exists (default: false).',
+        },
+      },
+      required: ['file'],
+    },
+  },
 ];
 
 function parseSections(value: string[] | undefined): ExtractSection[] {
@@ -150,6 +198,102 @@ function convertSections(model: NormalizedModel, sections: ExtractSection[]): Co
 function errorResult(error: unknown): { content: [{ type: 'text'; text: string }]; isError: true } {
   const message = error instanceof Error ? error.message : String(error);
   return { content: [{ type: 'text', text: message }], isError: true };
+}
+
+function normalizeSize(value: unknown, name: string): number | undefined {
+  if (value === undefined || value === null) return undefined;
+  const n = Number(value);
+  if (!Number.isFinite(n) || n < 16 || n > 4096) {
+    throw new Error(`${name} must be between 16 and 4096`);
+  }
+  return Math.round(n);
+}
+
+function requireNumberInRange(
+  value: unknown,
+  name: string,
+  range: { min?: number; max?: number }
+): number | undefined {
+  if (value === undefined || value === null) return undefined;
+  const n = Number(value);
+  if (!Number.isFinite(n)) throw new Error(`${name} must be a finite number`);
+  if (range.min !== undefined && n < range.min) throw new Error(`${name} must be >= ${range.min}`);
+  if (range.max !== undefined && n > range.max) throw new Error(`${name} must be <= ${range.max}`);
+  return n;
+}
+
+export {};
+
+interface DirectionArgs {
+  direction?: string;
+  yaw?: number;
+  elevation?: number;
+}
+
+function resolveDirectionArgs(args: DirectionArgs): CameraDirection | undefined {
+  if (typeof args.yaw === 'number' || typeof args.elevation === 'number') {
+    return { yaw: args.yaw, elevation: args.elevation };
+  }
+  if (typeof args.direction === 'string') {
+    return args.direction as CameraDirection;
+  }
+  return undefined;
+}
+
+let renderInstance: BlockbenchRenderer | undefined;
+let locatedBlockbenchPath: string | undefined;
+
+function getRenderInstance(): BlockbenchRenderer {
+  if (!renderInstance) {
+    const located = locatedBlockbenchPath ? undefined : locateBlockbench();
+    if (!located) {
+      throw new Error(
+        'Blockbench executable not found. Install the Blockbench desktop app, or set the '
+        + 'BBMODEL_BLOCKBENCH_PATH environment variable to the executable path.'
+      );
+    }
+    locatedBlockbenchPath = located.path;
+    renderInstance = new BlockbenchRenderer({ blockbenchPath: located.path, logger: nullLogger });
+  }
+  return renderInstance;
+}
+
+async function disposeRenderer(): Promise<void> {
+  const instance = renderInstance;
+  renderInstance = undefined;
+  if (instance) {
+    try {
+      await instance.dispose();
+    } catch {
+      // best effort on shutdown
+    }
+  }
+}
+
+for (const signal of ['SIGINT', 'SIGTERM'] as const) {
+  process.once(signal, () => {
+    void disposeRenderer().finally(() => process.exit(0));
+  });
+}
+
+async function uniqueOutputPath(base: string): Promise<string> {
+  if (!(await exists(base))) return base;
+  const dir = path.dirname(base);
+  const ext = path.extname(base) || '.png';
+  const stem = path.basename(base, ext);
+  for (let i = 2; ; i++) {
+    const candidate = path.join(dir, `${stem} (${i})${ext}`);
+    if (!(await exists(candidate))) return candidate;
+  }
+}
+
+async function exists(file: string): Promise<boolean> {
+  try {
+    await fsp.access(file);
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 const server = new Server(
@@ -238,6 +382,62 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
         };
         return {
           content: [{ type: 'text' as const, text: JSON.stringify(payload, null, 2) }],
+        };
+      }
+
+      case 'bbmodel_render': {
+        const file = String(args['file']);
+        const content = await fsp.readFile(file, 'utf-8');
+        const width = normalizeSize(args['width'], 'width');
+        const height = normalizeSize(args['height'], 'height') ?? width ?? undefined;
+        const padding = requireNumberInRange(args['padding'], 'padding', { min: 0.5, max: 4 });
+        const request = {
+          content,
+          name: path.basename(file, '.bbmodel'),
+          width: width ?? undefined,
+          height,
+          direction: resolveDirectionArgs({
+            direction: args['direction'] as string | undefined,
+            yaw: args['yaw'] as number | undefined,
+            elevation: args['elevation'] as number | undefined,
+          }),
+          padding,
+        };
+        const renderer = getRenderInstance();
+        const result = await renderer.render(request);
+
+        let out = (args['out'] as string | undefined)
+          ? path.resolve(String(args['out']))
+          : path.join(path.dirname(file), `${sanitizeFileName(request.name, 'model')}_render.png`);
+        if (args['overwrite'] !== true) out = await uniqueOutputPath(out);
+        await fsp.mkdir(path.dirname(out), { recursive: true });
+        await fsp.writeFile(out, result.png);
+
+        return {
+          content: [
+            {
+              type: 'image' as const,
+              data: Buffer.from(result.png).toString('base64'),
+              mimeType: 'image/png',
+            },
+            {
+              type: 'text' as const,
+              text: JSON.stringify(
+                {
+                  outFile: out,
+                  width: result.width,
+                  height: result.height,
+                  attempts: result.attempts,
+                  margins: result.margins,
+                  camera: result.camera,
+                  box: result.box,
+                  warnings: result.warnings,
+                },
+                null,
+                2
+              ),
+            },
+          ],
         };
       }
 

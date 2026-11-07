@@ -26,6 +26,7 @@ bbmodel-mcp
 | `bbmodel_inspect` | Parse a `.bbmodel` file and return a content inventory: container format version, model format, UV mode, texture resolution, group/texture counts, animation and controller names. Returns markdown + JSON. |
 | `bbmodel_read_sections` | Convert requested sections and return them inline as JSON without writing files: `geometry` (Bedrock `minecraft:geometry`), `animations`, `controllers`, `display`. For `textures`, only file names and external references are returned. |
 | `bbmodel_extract` | Extract sections to an output directory, writing Bedrock `geo.json`, `animations.json`, `animation_controllers.json`, `display.json` and decoded texture PNGs. Returns the written file list, warnings and inventory. |
+| `bbmodel_render` | Capture a framed transparent PNG of the model by driving an isolated Blockbench instance over the Chrome DevTools Protocol (user settings/profile untouched; models are loaded in-memory). Supports preset directions (`iso`, `front`, …) or orbit angles (`yaw`/`elevation` in degrees). Requires the Blockbench desktop app (or `BBMODEL_BLOCKBENCH_PATH`) and Node >= 22 — see [@bbmodel-tools/render](../render). |
 
 All tools accept an absolute path to a `.bbmodel` file in `file`. The extract tool additionally
 accepts `out_dir` (defaults to `<model name>_extracted` next to the source), `sections`,
