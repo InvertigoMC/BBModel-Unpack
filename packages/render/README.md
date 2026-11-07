@@ -59,8 +59,13 @@ the boot cost (~1-2 s), further renders are fast.
 
 ```bash
 npm run build -w packages/render
-node packages/render/dist/cli.js <file.bbmodel> [--out out.png] [--width N] [--direction iso]
+node packages/render/dist/cli.js <file.bbmodel> [--out out.png] [--width N]
+     [--direction iso|front|back|left|right|top|bottom]
+     [--yaw DEG --elevation DEG] [--padding 1.15]
 ```
+
+`--yaw`/`--elevation` (degrees; 0/0 = front, positive elevation above the model)
+take precedence over `--direction`.
 
 ## Unit tests
 

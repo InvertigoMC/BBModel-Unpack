@@ -5,7 +5,11 @@
  *
  * Usage:
  *   node dist/cli.js <file.bbmodel> [--out out.png] [--width 512] [--height 512]
- *        [--direction iso|front|back|left|right|top|bottom] [--padding 1.15]
+ *        [--direction iso|front|back|left|right|top|bottom]
+ *        [--yaw DEG --elevation DEG] [--padding 1.15]
+ *
+ * `--yaw`/`--elevation` (orbit angles in degrees; 0/0 = front) take precedence
+ * over `--direction`.
  */
 import * as fs from 'node:fs';
 import * as path from 'node:path';
@@ -26,10 +30,20 @@ function parseArgs(argv: string[]): Record<string, string> {
 	return args;
 }
 
+function resolveDirectionArgs(args: Record<string, string>): CameraDirection | undefined {
+	if (args.yaw !== undefined || args.elevation !== undefined) {
+		return {
+			yaw: args.yaw !== undefined ? parseFloat(args.yaw) : undefined,
+			elevation: args.elevation !== undefined ? parseFloat(args.elevation) : undefined,
+		};
+	}
+	return (args.direction as CameraDirection | undefined) ?? 'iso';
+}
+
 async function main(): Promise<void> {
 	const args = parseArgs(process.argv.slice(2));
 	if (!args.file) {
-		console.error('usage: node dist/cli.js <file.bbmodel> [--out out.png] [--width N] [--direction iso] [--padding F]');
+		console.error('usage: node dist/cli.js <file.bbmodel> [--out out.png] [--width N] [--direction iso] [--yaw DEG --elevation DEG] [--padding F]');
 		process.exitCode = 2;
 		return;
 	}
@@ -56,7 +70,7 @@ async function main(): Promise<void> {
 			content,
 			name: path.basename(args.file, '.bbmodel'),
 			width: args.width ? parseInt(args.width, 10) : 512,
-			direction: (args.direction as CameraDirection | undefined) ?? 'iso',
+			direction: resolveDirectionArgs(args),
 			padding: args.padding ? parseFloat(args.padding) : undefined,
 		});
 		fs.writeFileSync(out, result.png);

@@ -1,12 +1,14 @@
 # @bbmodel-tools/mcp
 
-MCP (Model Context Protocol) server that exposes the `@bbmodel-tools/core` Blockbench toolkit to
-MCP clients over stdio. Let your coding agent read a `.bbmodel` file's inventory, read converted
-Bedrock resources in memory, or extract them to disk — without installing anything else.
+MCP (Model Context Protocol) server that exposes the `@bbmodel-tools/core` Blockbench toolkit and
+the `@bbmodel-tools/render` automated renderer to MCP clients over stdio. Let your coding agent
+read a `.bbmodel` file's inventory, read converted Bedrock resources in memory, extract them to
+disk — and capture rendered PNG previews of the models (see the render requirements below).
 
 ## Install
 
-Requires Node.js 20+. No separate install is needed to *run* it:
+Requires Node.js 20+ (Node.js 22+ is required by the `bbmodel_render` tool — see below). No
+separate install is needed to *run* it:
 
 ```bash
 npx @bbmodel-tools/mcp
@@ -31,7 +33,25 @@ bbmodel-mcp
 All tools accept an absolute path to a `.bbmodel` file in `file`. The extract tool additionally
 accepts `out_dir` (defaults to `<model name>_extracted` next to the source), `sections`,
 `overwrite` (default `false` — collisions become `name (2).ext`) and `pretty_json` (default
-`true`).
+`true`). The render tool additionally accepts `out` (PNG path; defaults to `<model>_render.png`
+next to the model), `width`/`height` (px, 16–4096), `direction` (`iso` — the default —`, front`,
+`back`, `left`, `right`, `top`, `bottom`) or orbit angles `yaw`/`elevation` (degrees; 0/0 = front,
+positive elevation = above), `padding` and `overwrite`.
+
+### Render requirements
+
+`bbmodel_render` needs more setup than the other tools:
+
+- **Blockbench desktop app** installed (tested with 5.2.x), or `BBMODEL_BLOCKBENCH_PATH` pointing
+  at the executable. The tool drives the app in an automation mode: it spawns an
+  **isolated instance** with its own throwaway profile (`--userData <temp>`), so your Blockbench
+  settings, plugins and state are never touched, and loads models in-memory (no disk access from
+  within Blockbench).
+- **Node.js ≥ 22** for the server *process* that lets the tool work (it uses Node's built-in
+  WebSocket client to speak the Chrome DevTools Protocol). The other tools run fine on Node ≥ 20,
+  but for `bbmodel_render` to be usable, run the server itself on Node ≥ 22.
+- On each render the tool writes a PNG next to the model (or to `out`), **and** returns the image
+  inline as MCP image content along with the camera spec, ink margins and warnings.
 
 ## Client configuration
 

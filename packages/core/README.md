@@ -5,7 +5,9 @@ Minecraft Bedrock resources: `geo.json` geometry, `animations.json`, `animation_
 decoded texture PNGs and display settings — with no UI or VS Code dependencies, on plain Node.js.
 
 This package powers the [BBModel Unpack VS Code extension](../vsc) and the
-[@bbmodel-tools/mcp server](../mcp), and can be used directly in your own tools.
+[@bbmodel-tools/mcp server](../mcp); the [render package](../render) and the
+core-based converters in [our MCP tools](../mcp) follow the same converter
+semantics. You can also use it directly in your own tools.
 
 ## Install
 
