@@ -1,6 +1,6 @@
 {
   "name": "@bbmodel-tools/render",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "private": true,
   "description": "Automated Blockbench rendering for .bbmodel files: drives an isolated Blockbench instance over the Chrome DevTools Protocol and captures framed, transparent PNG previews.",
   "license": "GPL-3.0-only",

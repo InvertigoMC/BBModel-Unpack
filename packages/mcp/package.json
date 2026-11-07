@@ -1,6 +1,6 @@
 {
   "name": "@bbmodel-tools/mcp",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "MCP server exposing @bbmodel-tools/core over stdio: inspect Blockbench .bbmodel files and extract Bedrock geometry, animations, animation controllers and textures.",
   "license": "GPL-3.0-only",
   "bin": {
